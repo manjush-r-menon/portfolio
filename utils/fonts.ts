@@ -1,17 +1,7 @@
-import { Geist, Geist_Mono, JetBrains_Mono, Pacifico } from "next/font/google";
+import { Bebas_Neue } from "next/font/google";
 
-export const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-export const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  weight: "400",
+export const babas = Bebas_Neue({
+  variable: "--font-babas-neue",
+  weight: ["400"],
   subsets: ["latin"],
 });

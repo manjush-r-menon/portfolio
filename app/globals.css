@@ -12,10 +12,15 @@
   }
 }
 
+@layer utilities {
+  .font-babas {
+    font-family: var(--font-babas-neue), sans-serif;
+  }
+}
+
 body {
   background-color: #000;
   color: #fff;
-  font-family: "Inter", sans-serif;
   margin: 0;
   padding: 0;
 }
