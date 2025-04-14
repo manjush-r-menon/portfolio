@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { geistMono, geistSans, jetbrainsMono } from "@/utils/fonts";
+import { babas } from "@/utils/fonts";
 
 export const metadata: Metadata = {
   title: "Manjush | Portfolio",
@@ -9,16 +9,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${babas.variable} antialiased`}>{children}</body>
     </html>
   );
 }
