@@ -1,9 +1,10 @@
 import { Container } from "@/components/container/container";
+import PageUnderConstruction from "@/components/page-under-construction/page-under-construction";
 
 export default function Home() {
   return (
-    <Container className="mt-9">
-      <span>Home Page</span>
+    <Container className="flex h-full items-center">
+      <PageUnderConstruction />
     </Container>
   );
 }
