@@ -1,5 +1,5 @@
-import { Header } from "./header";
-import "../styles/tailwind.css";
+import { Header } from "../header/header";
+import "../../styles/tailwind.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
