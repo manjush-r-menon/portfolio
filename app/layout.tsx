@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { babas } from "@/utils/fonts";
+import { Layout } from "@/components/layout";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Manjush | Portfolio",
@@ -13,8 +14,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${babas.variable} antialiased`}>{children}</body>
+    <html
+      lang="en"
+      className={`h-full antialiased ${babas.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="flex h-full bg-zinc-50 dark:bg-black">
+        <Providers>
+          <div className="flex w-full">
+            <Layout>{children}</Layout>
+          </div>
+        </Providers>
+      </body>
     </html>
   );
 }

@@ -1,3 +1,9 @@
+import { Container } from "@/components/container";
+
 export default function About() {
-    return <div>About page</div>
+  return (
+    <Container className="mt-9">
+      <span>About Page</span>
+    </Container>
+  );
 }
