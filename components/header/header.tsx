@@ -2,10 +2,10 @@
 
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
-import { Container } from "./container";
-import { DesktopNavigation } from "./navigation/desktop-nav/desktop-navigation";
-import { MobileNavigation } from "./navigation/mobile-nav/mobile-navigation";
-import { ThemeToggle } from "./theme-toggle";
+import { Container } from "../container/container";
+import { DesktopNavigation } from "../navigation/desktop-nav/desktop-navigation";
+import { MobileNavigation } from "../navigation/mobile-nav/mobile-navigation";
+import { ThemeToggle } from "../theme-toggle/theme-toggle";
 
 export function Header() {
   let isHomePage = usePathname() === "/";

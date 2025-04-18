@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import { MoonIcon } from "./icon-components/moon-icon";
-import { SunIcon } from "./icon-components/sun-icon";
+import { MoonIcon } from "../icon-components/moon-icon";
+import { SunIcon } from "../icon-components/sun-icon";
 
 export function ThemeToggle() {
   let { resolvedTheme, setTheme } = useTheme();

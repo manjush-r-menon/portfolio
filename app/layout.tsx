@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { babas } from "@/utils/fonts";
-import { Layout } from "@/components/layout";
+import { Layout } from "@/components/layout/layout";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
