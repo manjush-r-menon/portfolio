@@ -38,7 +38,7 @@ function SocialLink({
 
 export default function About() {
   return (
-    <Container className="flex h-full items-center mt-16 sm:mt-32">
+    <Container className="flex h-full items-center mt-16">
       <div className="grid grid-cols-1 gap-y-16 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-y-12">
         <div className="lg:pl-20 justify-items-center">
           <div className="max-w-xs px-2.5 lg:max-w-none">
@@ -84,13 +84,25 @@ export default function About() {
         </div>
         <div className="hidden md:block lg:pl-20">
           <ul role="list">
-            <SocialLink href="#" icon={InstagramIcon} className="mt-4">
+            <SocialLink
+              href="https://www.instagram.com/manjush_r.menon/"
+              icon={InstagramIcon}
+              className="mt-4"
+            >
               Follow on Instagram
             </SocialLink>
-            <SocialLink href="#" icon={GitHubIcon} className="mt-4">
+            <SocialLink
+              href="https://github.com/manjush-r-menon"
+              icon={GitHubIcon}
+              className="mt-4"
+            >
               Follow on GitHub
             </SocialLink>
-            <SocialLink href="#" icon={LinkedInIcon} className="mt-4">
+            <SocialLink
+              href="https://www.linkedin.com/in/manjush-menon/"
+              icon={LinkedInIcon}
+              className="mt-4"
+            >
               Follow on LinkedIn
             </SocialLink>
             <SocialLink
