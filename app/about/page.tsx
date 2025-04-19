@@ -7,6 +7,8 @@ import { LinkedInIcon } from "@/components/icon-components/linked-in-icon";
 import MailIcon from "@/components/icon-components/mail-icon";
 import Link from "next/link";
 import clsx from "clsx";
+import { CapabilitiesSection } from "@/components/capabilities-section/capabilities-section";
+import { CapabilitiesSubsection } from "@/components/capabilities-section/capabilities-sub-sections";
 
 interface SocialLinkProps {
   className?: string;
@@ -80,7 +82,7 @@ export default function About() {
             up!
           </p>
         </div>
-        <div className="lg:pl-20">
+        <div className="hidden md:block lg:pl-20">
           <ul role="list">
             <SocialLink href="#" icon={InstagramIcon} className="mt-4">
               Follow on Instagram
@@ -101,6 +103,8 @@ export default function About() {
           </ul>
         </div>
       </div>
+      <CapabilitiesSection />
+      <CapabilitiesSubsection />
     </Container>
   );
 }
