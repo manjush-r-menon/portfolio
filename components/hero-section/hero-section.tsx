@@ -19,9 +19,18 @@ const HeroSection = () => {
           geeking out over football or exploring the latest in web dev.
         </p>
         <div className="mt-6 flex gap-6">
-          <SocialLink href="#" icon={InstagramIcon} />
-          <SocialLink href="#" icon={GitHubIcon} />
-          <SocialLink href="#" icon={LinkedInIcon} />
+          <SocialLink
+            href="https://www.instagram.com/manjush_r.menon/"
+            icon={InstagramIcon}
+          />
+          <SocialLink
+            href="https://github.com/manjush-r-menon"
+            icon={GitHubIcon}
+          />
+          <SocialLink
+            href="https://www.linkedin.com/in/manjush-menon/"
+            icon={LinkedInIcon}
+          />
         </div>
       </div>
       <div

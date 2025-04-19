@@ -47,7 +47,7 @@ export default function Certifications() {
             <p className="text-zinc-600 dark:text-zinc-400">
               View verified credentials on{" "}
               <a
-                href="[YOUR_LINKEDIN_URL]"
+                href="https://www.linkedin.com/in/manjush-menon/"
                 className="font-medium text-teal-600 hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
                 target="_blank"
                 rel="noopener noreferrer"
