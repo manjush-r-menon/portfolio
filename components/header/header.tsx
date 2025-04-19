@@ -6,6 +6,7 @@ import { Container } from "../container/container";
 import { DesktopNavigation } from "../navigation/desktop-nav/desktop-navigation";
 import { MobileNavigation } from "../navigation/mobile-nav/mobile-navigation";
 import { ThemeToggle } from "../theme-toggle/theme-toggle";
+import Link from "next/link";
 
 export function Header() {
   let isHomePage = usePathname() === "/";
@@ -38,10 +39,13 @@ export function Header() {
           >
             <div className="relative flex gap-4">
               <div className="flex flex-1">
-                <span className="px-4 py-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                <Link
+                  href="/"
+                  className="pointer-events-auto px-4 py-2 text-sm font-medium text-zinc-800 dark:text-zinc-200"
+                >
                   <span className="block md:hidden">MRM</span>
                   <span className="hidden md:block">Manjush R Menon</span>
-                </span>
+                </Link>
               </div>
               <div className="flex flex-1 justify-end md:justify-center">
                 <MobileNavigation className="pointer-events-auto md:hidden" />
