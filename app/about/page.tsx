@@ -8,17 +8,19 @@ import MailIcon from "@/components/icon-components/mail-icon";
 import Link from "next/link";
 import clsx from "clsx";
 
+interface SocialLinkProps {
+  className?: string;
+  href: string;
+  children: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 function SocialLink({
   className,
   href,
   children,
   icon: Icon,
-}: {
-  className?: string;
-  href: string;
-  children: React.ReactNode;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
+}: SocialLinkProps) {
   return (
     <li className={clsx(className, "flex")}>
       <Link
