@@ -50,7 +50,7 @@ export default function ContactMeSection() {
 
   return (
     <div className="mx-auto grid max-w-7xl gap-16 grid-cols-1 lg:grid-cols-2">
-      <div className="relative lg:static py-10 lg:py-48">
+      <div className="relative lg:static py-10 lg:pt-48">
         <div className="mx-auto max-w-4xl lg:mx-0">
           <h2 className="text-4xl font-semibold tracking-tight text-pretty text-zinc-900 dark:text-zinc-100 sm:text-5xl">
             Get in touch
@@ -85,7 +85,7 @@ export default function ContactMeSection() {
         </div>
       </div>
 
-      <form ref={form} onSubmit={sendEmail} className="lg:py-48">
+      <form ref={form} onSubmit={sendEmail} className="lg:pt-48">
         <div className="mx-auto max-w-xl lg:mr-0 lg:max-w-lg">
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <Input
