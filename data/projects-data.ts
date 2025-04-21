@@ -20,35 +20,35 @@ export const projects: projectsType[] = [
       "Created a responsive car rental interface focusing on UI/UX best practices, implementing complex component interactions and state management. Developed as training exercise to master Next.js fundamentals and modern frontend patterns.",
     tech: ["Next.js", "Tailwind"],
   },
-  {
-    title: "B2X E-Commerce Platform",
-    role: "Frontend Developer",
-    description:
-      "Developed core features using React in a monorepo environment. Built reusable components with Storybook documentation and interaction testing. Worked within Dev Container setup to maintain consistent development workflows across teams.",
-    tech: [
-      "React",
-      "Storybook",
-      "Testing Library",
-      "Tailwind CSS",
-      "Dev Containers",
-      "TypeScript",
-      "Jest",
-    ],
-  },
-  {
-    title: "BASF E-Commerce Platform",
-    role: "Frontend Developer (Angular & React)",
-    description:
-      "Developing a robust e-commerce platform comprising a backoffice application using React and a customer-facing shop using Angular. Focused on building clean, reusable components and maintaining high code quality with unit and integration tests, achieving over 80% test coverage across the application.",
-    tech: [
-      "Angular",
-      "React",
-      "Commerce Tools",
-      "TypeScript",
-      "Jest",
-      "Commerce Tools UI Kit",
-    ],
-  },
+  // {
+  //   title: "B2X E-Commerce Platform",
+  //   role: "Frontend Developer",
+  //   description:
+  //     "Developed core features using React in a monorepo environment. Built reusable components with Storybook documentation and interaction testing. Worked within Dev Container setup to maintain consistent development workflows across teams.",
+  //   tech: [
+  //     "React",
+  //     "Storybook",
+  //     "Testing Library",
+  //     "Tailwind CSS",
+  //     "Dev Containers",
+  //     "TypeScript",
+  //     "Jest",
+  //   ],
+  // },
+  // {
+  //   title: "BASF E-Commerce Platform",
+  //   role: "Frontend Developer (Angular & React)",
+  //   description:
+  //     "Developing a robust e-commerce platform comprising a backoffice application using React and a customer-facing shop using Angular. Focused on building clean, reusable components and maintaining high code quality with unit and integration tests, achieving over 80% test coverage across the application.",
+  //   tech: [
+  //     "Angular",
+  //     "React",
+  //     "Commerce Tools",
+  //     "TypeScript",
+  //     "Jest",
+  //     "Commerce Tools UI Kit",
+  //   ],
+  // },
   {
     title: "Portfolio Website",
     role: "Frontend Developer",
