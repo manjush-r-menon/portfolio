@@ -1,13 +1,13 @@
-import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
-import { MoonIcon } from "../icon-components/moon-icon";
-import { SunIcon } from "../icon-components/sun-icon";
+import { useTheme } from 'next-themes';
+import { useState, useEffect } from 'react';
+import { MoonIcon } from '../icon-components/moon-icon';
+import { SunIcon } from '../icon-components/sun-icon';
 
 export function ThemeToggle() {
-  let { resolvedTheme, setTheme } = useTheme();
-  let otherTheme = resolvedTheme === "dark" ? "light" : "dark";
+  const { resolvedTheme, setTheme } = useTheme();
+  const otherTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
 
-  let [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -16,7 +16,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      aria-label={mounted ? `Switch to ${otherTheme} theme` : "Toggle theme"}
+      aria-label={mounted ? `Switch to ${otherTheme} theme` : 'Toggle theme'}
       className="group rounded-full bg-white/90 px-3 py-2 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur-sm transition dark:bg-zinc-800/90 dark:ring-white/10 dark:hover:ring-white/20"
       onClick={() => setTheme(otherTheme)}
     >
