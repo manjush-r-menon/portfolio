@@ -39,6 +39,7 @@ export function MobileNavigation(
             <MobileNavItem href="/about">About</MobileNavItem>
             <MobileNavItem href="/projects">Projects</MobileNavItem>
             <MobileNavItem href="/certifications">Certifications</MobileNavItem>
+            <MobileNavItem href="/blogs">Blogs</MobileNavItem>
             <MobileNavItem href="/contact">Contact</MobileNavItem>
           </ul>
         </nav>

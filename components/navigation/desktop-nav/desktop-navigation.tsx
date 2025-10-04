@@ -9,6 +9,7 @@ export function DesktopNavigation(
         <DesktopNavItem href="/about">About</DesktopNavItem>
         <DesktopNavItem href="/projects">Projects</DesktopNavItem>
         <DesktopNavItem href="/certifications">Certifications</DesktopNavItem>
+        <DesktopNavItem href="/blogs">Blogs</DesktopNavItem>
         <DesktopNavItem href="/contact">Contact</DesktopNavItem>
       </ul>
     </nav>
