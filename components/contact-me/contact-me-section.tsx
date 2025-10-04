@@ -1,51 +1,70 @@
-"use client";
-import {
-  BuildingOffice2Icon,
-  EnvelopeIcon,
-  PhoneIcon,
-} from "@heroicons/react/24/outline";
-import { Button } from "../button/botton";
-import emailjs from "@emailjs/browser";
-import { useRef, useState } from "react";
-import ContactItem from "./contact-item";
-import Input from "./contact-input";
-import NotificationPopup from "../notification/notification-pop-up";
+'use client';
+import { BuildingOffice2Icon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { Button } from '../button/botton';
+import emailjs from '@emailjs/browser';
+import { useRef, useState } from 'react';
+import ContactItem from './contact-item';
+import Input from './contact-input';
+import NotificationPopup from '../notification/notification-pop-up';
 
 export default function ContactMeSection() {
   const form = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<{
     message: string;
-    type: "success" | "error";
+    type: 'success' | 'error';
   } | null>(null);
+
+  const validateInput = () => {
+    if (!form.current) return false;
+
+    const formData = new FormData(form.current);
+    const firstName = formData.get('first_name');
+    const lastName = formData.get('last_name');
+    const email = formData.get('email');
+    const phone = formData.get('phone');
+    const message = formData.get('message');
+
+    if (!firstName || !lastName || !email || !phone || !message) {
+      setStatus({
+        message: 'Please enter valid information.',
+        type: 'error',
+      });
+      return false;
+    }
+
+    return true;
+  };
 
   const sendEmail = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.current) return;
 
-    emailjs
-      .sendForm(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        form.current,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-      )
-      .then(
-        () => {
-          setStatus({
-            message: "Message sent successfully!",
-            type: "success",
-          });
-          form.current?.reset();
-        },
-        (error) => {
-          console.error(error);
-          setStatus({
-            message: "Failed to send the message. Try again later.",
-            type: "error",
-          });
-        }
-      );
+    if (validateInput()) {
+      emailjs
+        .sendForm(
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+          form.current,
+          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!,
+        )
+        .then(
+          () => {
+            setStatus({
+              message: 'Message sent successfully!',
+              type: 'success',
+            });
+            form.current?.reset();
+          },
+          (error) => {
+            console.error(error);
+            setStatus({
+              message: 'Failed to send the message. Try again later.',
+              type: 'error',
+            });
+          },
+        );
+    }
   };
 
   return (
@@ -56,8 +75,8 @@ export default function ContactMeSection() {
             Get in touch
           </h2>
           <p className="mt-6 text-lg/8 text-zinc-600 dark:text-zinc-400">
-            Have a project in mind? Want to collaborate? Or just want to say
-            hello? I'd love to hear from you!
+            Have a project in mind? Want to collaborate? Or just want to say hello? I'd love to hear
+            from you!
           </p>
           <dl className="mt-10 space-y-4">
             <ContactItem icon={BuildingOffice2Icon} title="Address">
@@ -88,18 +107,8 @@ export default function ContactMeSection() {
       <form ref={form} onSubmit={sendEmail} className="lg:pt-48">
         <div className="mx-auto max-w-xl lg:mr-0 lg:max-w-lg">
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
-            <Input
-              id="first-name"
-              name="first_name"
-              label="First name"
-              autoComplete="given-name"
-            />
-            <Input
-              id="last-name"
-              name="last_name"
-              label="Last name"
-              autoComplete="family-name"
-            />
+            <Input id="first-name" name="first_name" label="First name" autoComplete="given-name" />
+            <Input id="last-name" name="last_name" label="Last name" autoComplete="family-name" />
             <Input
               id="email"
               name="email"
