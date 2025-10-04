@@ -1,4 +1,4 @@
-import { certifications } from "@/data/certificate-data";
+import { certifications } from "@/data/certificate-data/certificate-data";
 import { Container } from "@/components/container/container";
 
 export default function Certifications() {
