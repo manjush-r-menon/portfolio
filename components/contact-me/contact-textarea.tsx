@@ -1,17 +1,17 @@
 import { getInputClasses } from './input-styles';
 
-export default function Input({
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string;
+  error?: string;
+}
+
+export default function Textarea({
   id,
   label,
-  type = "text",
-  autoComplete,
   className,
   error,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { 
-  label: string;
-  error?: string;
-}) {
+}: TextareaProps) {
   return (
     <div className={className}>
       <label
@@ -21,10 +21,8 @@ export default function Input({
         {label}
       </label>
       <div className="mt-2.5">
-        <input
+        <textarea
           id={id}
-          type={type}
-          autoComplete={autoComplete}
           className={getInputClasses(!!error)}
           {...props}
         />
