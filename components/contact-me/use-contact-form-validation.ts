@@ -15,11 +15,11 @@ export function useContactFormValidation(formRef: RefObject<HTMLFormElement | nu
     if (!formRef.current) return false;
 
     const formData = new FormData(formRef.current);
-    const firstName = (formData.get('first_name') as string)?.trim();
-    const lastName = (formData.get('last_name') as string)?.trim();
-    const email = (formData.get('email') as string)?.trim();
-    const phone = (formData.get('phone') as string)?.trim();
-    const message = (formData.get('message') as string)?.trim();
+    const firstName = String(formData.get('first_name') || '').trim();
+    const lastName = String(formData.get('last_name') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const phone = String(formData.get('phone') || '').trim();
+    const message = String(formData.get('message') || '').trim();
 
     const newErrors: FormErrors = {};
 
