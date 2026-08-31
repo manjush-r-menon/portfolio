@@ -6,7 +6,45 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --bg: #faf9f4; /* warm ivory page background */
+  --ink: #141412; /* primary text, near-black */
+  --ink-dim: #737169; /* secondary text, muted labels — darkened from spec's #8c8a80 to clear WCAG AA at 12–13px (4.64:1 vs 3.29:1) */
+  --line: #e6e3d8; /* hairline dividers */
+  --line-strong: #cfccbe; /* ghost-word color, stronger dividers */
+  --accent: #d1591f; /* primary accent — burnt orange */
+  --accent-ink: #5c260c; /* darker accent for text-on-light use */
+
+  /* Card-reveal deck faces (Work page, certification cards). Three mix
+     percentages of --accent over --bg, spaced widely (12/38/65) so they
+     read as clearly distinct cards at a glance in the stacked/fanned
+     state — not the reference's lavender/pink/peach, and not an earlier
+     same-hue tint ladder that was too close together (12/22/32%) to tell
+     apart. These faces only ever show corner labels (issuer + number),
+     using the inherited --ink text color — checked empirically at 65%
+     (card 03, the deepest): 7.38:1 contrast, comfortably past WCAG AAA, so
+     no override was needed. The cert title/meta/description content lives
+     on the card's *back* face instead, which is always --bg (cream)
+     regardless of deck color — see .flipCardBack in
+     card-reveal.module.css — so that text's contrast doesn't vary by card
+     at all. */
+  --card-1: color-mix(in srgb, var(--accent) 12%, var(--bg)); /* pale */
+  --card-2: color-mix(in srgb, var(--accent) 38%, var(--bg)); /* mid */
+  --card-3: color-mix(in srgb, var(--accent) 65%, var(--bg)); /* deep */
+}
+
 @theme {
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-display: var(--font-fraunces), ui-serif, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.5rem;
   --text-sm: 0.875rem;
@@ -33,4 +71,130 @@
   --text-8xl--line-height: 1;
   --text-9xl: 8rem;
   --text-9xl--line-height: 1;
+
+  --animate-pulse-soft: pulse-soft 1.8s ease-in-out infinite;
+  --animate-settle: settle 400ms ease-out;
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes settle {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Reserves the scrollbar gutter permanently, so Preloader toggling
+   body's overflow (hidden while it plays, restored once it reveals the
+   page) never changes the page's content width. Without this, the
+   scrollbar reappearing at that exact moment resizes every TextReveal
+   container, and SplitText's autoSplit re-splits mid-animation to match —
+   a visible hitch right as the hero text should be revealing. */
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/* Fallback for TransitionProvider's SVG wipe paths — getTotalLength()
+   only works client-side once the path is laid out, so the exact dash
+   values are set in a useEffect. Until then, this generously large
+   placeholder keeps the stroke fully hidden instead of flashing visible
+   on first paint. */
+.page-transition-path {
+  stroke-dasharray: 99999;
+  stroke-dashoffset: 99999;
+}
+
+html.cursor-hidden,
+html.cursor-hidden * {
+  cursor: none !important;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.ghost-word-top {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-style: normal;
+  font-size: clamp(2.9rem, 8vw, 6.75rem);
+  line-height: 0.94;
+  color: var(--ink);
+}
+
+.ghost-word-echo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(2.9rem, 8vw, 6.75rem);
+  line-height: 0.94;
+  color: var(--line-strong);
+  margin-top: -0.08em;
+}
+
+/* The "loudest moment on the page" scale — used sparingly for the
+   Contact word stack. Deliberately bigger than .ghost-word-top, which
+   stays as-is for regular headings. */
+.ghost-word-hero {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-style: normal;
+  font-size: clamp(3.4rem, 12.6vw, 10.7rem);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+/* Home-only display treatment: bold sans grotesk, no italic echo — matches
+   the reference site's headline/name style. Font-size set per use via a
+   Tailwind arbitrary clamp value where it's used. */
+.grotesk-display {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-style: normal;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  color: var(--ink);
+}
+
+/* GSAP SplitText's line-mask wrapper (mask: "lines") clips to the tight
+   line box it measures — descenders (j, g, y, p, q) get cut off on
+   anything with line-height under ~1, like .grotesk-display's 0.9. Extra
+   padding gives the glyph room inside the clip; the matching negative
+   margin cancels it back out so it doesn't add visible line spacing. */
+.line-mask {
+  padding-bottom: 0.25em;
+  margin-bottom: -0.25em;
 }

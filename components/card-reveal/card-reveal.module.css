@@ -1,0 +1,431 @@
+/* Structural values mirror /references/styles.css 1:1 (section geometry,
+   perspective, backface-visibility, floating keyframe) — only colors are
+   swapped for theme tokens (var(--bg)/var(--ink)/var(--accent) family)
+   and reference class names are camelCased for CSS Modules. */
+
+/* Full-bleed to the edges of <main>'s own padding box (not raw 100vw —
+   the site reserves a permanent scrollbar-gutter on <html>, which makes
+   100vw/-50vw centering math overshoot by the gutter width and introduce
+   real horizontal overflow). The negative margins are applied per-section
+   below, matching main's own responsive padding scale exactly. */
+.section {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* ---------- Hero (card scatter) ---------- */
+
+.hero {
+  composes: section;
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+.heroCards {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 35%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+@media (max-width: 1000px) {
+  .heroCards {
+    width: calc(100% - 4rem);
+  }
+}
+
+.heroCard {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 5 / 7;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.heroCard1 {
+  background-color: var(--card-1);
+  transform-origin: top right;
+  z-index: 2;
+}
+
+.heroCard2 {
+  background-color: var(--card-2);
+  z-index: 1;
+}
+
+.heroCard3 {
+  background-color: var(--card-3);
+  transform-origin: top left;
+  z-index: 0;
+}
+
+.cardTitleRow {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- About (static divider) ---------- */
+
+.about {
+  composes: section;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--ink);
+  color: var(--bg);
+  padding: 2rem;
+}
+
+/* ---------- Services (pinned header + card driver) ---------- */
+
+.services {
+  composes: section;
+  padding: 8rem 2rem;
+  background-color: var(--bg);
+}
+
+@media (max-width: 1000px) {
+  .services {
+    min-height: 100svh;
+    height: auto;
+    padding: 4rem 2rem;
+  }
+}
+
+.servicesHeader {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  transform: translateY(400%);
+  will-change: transform;
+}
+
+@media (max-width: 1000px) {
+  .servicesHeader {
+    transform: translateY(0%);
+  }
+}
+
+/* Used instead of .servicesHeader while the animated/portaled path is
+   mounted. PageSettle (app-wide) leaves a lingering inline `transform` at
+   rest, which makes <main> establish a stacking context — z-index alone on
+   an in-flow header can't out-rank the portaled .cardsLayer (z-index: 2)
+   from *inside* that context, no matter how high, because the whole
+   trapped subtree is compared as one unit against the portal at the outer
+   level. The actual fix is rendering the header as a child of the same
+   portal, so it participates directly in that outer comparison. Absolutely
+   positioned at the same 8rem inset .services used as padding-top, so it
+   lands in the same visual spot it did as in-flow content. */
+.servicesHeaderPortal {
+  position: absolute;
+  top: 8rem;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  text-align: center;
+  transform: translateY(400%);
+  will-change: transform;
+}
+
+/* ---------- Cards layer (fixed, portaled to body) ---------- */
+
+/* The portal root. Deliberately has NO clip-path and NO background of its
+   own — both live on .cardsAndHeader below instead. Previously this
+   element carried the about-mask clip-path itself, which meant *any*
+   content that needed to render outside its 100vh box (like the CTA
+   landing below the fold on a short viewport) got silently clipped away
+   along with it, since clip-path clips to its own geometry regardless of
+   overflow settings. Splitting the two apart means the CTA is never at
+   the mercy of a clip meant for something else. */
+.cardsLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Dedicated wrapper around the header + cards (the two things that
+   genuinely need the about-section clip-path, since the header slides in
+   from below during the same pre-roll window the cards fade in during —
+   see applyAboutClip in pinned-reveal.tsx). Carries the opaque background
+   .cardsLayer used to have, since that fill also needs to respect the
+   clip boundary. The CTA is a sibling of this wrapper, not a child —
+   structurally guaranteed to never be clipped or otherwise entangled with
+   the cards' own box. */
+.cardsAndHeader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg);
+}
+
+.cardsContainer {
+  position: relative;
+  width: 75%;
+  height: 100%;
+  /* Cards are vertically centered in this 100%-height box while the
+     header stays fixed at .servicesHeaderPortal's own `top: 8rem` —
+     extra margin here widens the visual gap between header and cards
+     beyond what pure centering would give, since a fixed-position header
+     doesn't participate in that centering. */
+  margin-top: calc(4rem + 22px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+}
+
+.cardsContainerStatic {
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.card {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 5 / 7;
+  perspective: 1000px;
+}
+
+.cardStatic {
+  composes: card;
+  flex: 1 1 260px;
+  max-width: 320px;
+}
+
+.cardWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  animation: floating 2s infinite ease-in-out;
+}
+
+.cardWrapperStatic {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  height: 100%;
+  animation: none;
+}
+
+@keyframes floating {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, -55%);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
+
+.delay0 {
+  animation-delay: 0s;
+}
+
+.delay1 {
+  animation-delay: 0.25s;
+}
+
+.delay2 {
+  animation-delay: 0.5s;
+}
+
+.flipCardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flipCardFront,
+.flipCardBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.flipCardFront {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flipCardFront1 {
+  background-color: var(--card-1);
+}
+
+.flipCardFront2 {
+  background-color: var(--card-2);
+}
+
+.flipCardFront3 {
+  background-color: var(--card-3);
+}
+
+.flipCardBack {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  color: var(--ink);
+  transform: rotateY(180deg);
+  border: 1px solid var(--line);
+}
+
+/* Same hue as the matching .flipCardFrontN, just mixed back down toward
+   --bg so it reads as a light, "little transparent" tint rather than the
+   full-strength deck color — keeps each landed card visually tied to its
+   own front color instead of all three going uniformly cream. */
+.flipCardBack1 {
+  background-color: color-mix(in srgb, var(--card-1) 30%, var(--bg));
+}
+
+.flipCardBack2 {
+  background-color: color-mix(in srgb, var(--card-2) 30%, var(--bg));
+}
+
+.flipCardBack3 {
+  background-color: color-mix(in srgb, var(--card-3) 30%, var(--bg));
+}
+
+/* Certification content zone — title, an issuer/date meta line, and a
+   description paragraph. Replaces the reference's pill-list (.cardCopy),
+   which was built for short, uniform sub-items (Discovery/Audit/Site Map)
+   and doesn't fit a single title + prose shape. Centered vertically within
+   whatever space is left between the two corner-label rows. */
+.certContent {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.65rem;
+  overflow: hidden;
+}
+
+.certTitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: inherit;
+}
+
+.certMeta {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* --ink-dim (the site's usual muted-label color) was tuned for plain
+     --bg and drops as low as 3.64:1 — below WCAG AA — once the back face
+     picks up a card tint (see .flipCardBack1/2/3). --accent-ink holds
+     9-11:1 across all three tints, checked empirically. */
+  color: var(--accent-ink);
+}
+
+.certDescription {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: inherit;
+  opacity: 0.85;
+}
+
+/* Initial deck (fanned/stacked) transform — matches the reference's base
+   CSS starting point for #card-1/2/3 before ScrollTrigger's onUpdate ever
+   runs, so first paint isn't an untransformed flash. */
+.cardDeck1 {
+  transform: translateX(100%) translateY(-100%) rotate(-5deg) scale(0.25);
+  z-index: 2;
+}
+
+.cardDeck2 {
+  transform: translateX(0%) translateY(-100%) rotate(0deg) scale(0.25);
+  z-index: 1;
+}
+
+.cardDeck3 {
+  transform: translateX(-100%) translateY(-100%) rotate(5deg) scale(0.25);
+  z-index: 0;
+}
+
+/* ---------- CTA (replaces the old outro) ---------- */
+
+/* Sibling of .cardsAndHeader, not a child of it — see that class's own
+   comment for why. Revealed via a fade/scale-in driven by the tail end of
+   the same scroll-linked progress (see pinned-reveal.tsx) — appears while
+   still pinned, so it's on screen the moment the cards finish landing, no
+   further scrolling required. pointer-events re-enabled explicitly since
+   the whole .cardsLayer is pointer-events: none. `top` is NOT set here — a
+   fixed `bottom` offset from the viewport edge only happens to clear the
+   cards at one specific viewport height, since the cards' own vertical
+   center depends on viewport height while a `bottom` offset doesn't track
+   it. `top` is computed in JS from the cards' actual measured bottom edge
+   every tick instead (see applyDriverProgress) — unconditionally, with no
+   upper clamp, so it can never be pulled back up into the cards. On a
+   short viewport this can legitimately land below the initial fold; that's
+   a normal "scroll a little further" outcome, not the dead-zone bug fixed
+   earlier, and is far preferable to overlapping the cards. */
+.ctaPortal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: auto;
+  will-change: transform, opacity, top;
+}
+
+/* Static (reduced-motion / mobile) fallback — always visible, no reveal
+   animation, sits in normal flow right after the static card grid. */
+.ctaStatic {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}

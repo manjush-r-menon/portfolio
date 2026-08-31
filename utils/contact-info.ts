@@ -1,15 +1,13 @@
 export const CONTACT_INFO = {
-  address: {
-    city: 'Kochi, Kerala',
-    country: 'India',
-    postalCode: '682301',
+  email: {
+    display: "manjushrmenon730@gmail.com",
+    href: "mailto:manjushrmenon730@gmail.com",
   },
   phone: {
-    display: '+91 90612 67198',
-    href: 'tel:+919061267198',
+    display: "+91 90612 67198",
+    href: "tel:+919061267198",
   },
-  email: {
-    display: 'manjushrmenon730@gmail.com',
-    href: 'mailto:manjushrmenon730@gmail.com',
-  },
+  based: "Kochi, India",
+  github: "manjush-r-menon",
+  linkedin: "manjush-menon",
 } as const;

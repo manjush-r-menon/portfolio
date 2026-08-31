@@ -24,7 +24,7 @@ export const blogs: Blog[] = [
     date: "Oct 2025",
     description:
       "Starting my first React project was both exciting and challenging. It taught me a lot — not just about React itself, but about how to approach building apps, debugging, and growing as a developer.",
-    link: "https://yourblog.com/react-lessons",
+    link: "https://substack.com/@manjushmenon/p-163789038",
     icon: LightBulbIcon,
   },
   {
@@ -32,7 +32,7 @@ export const blogs: Blog[] = [
     author: "Manjush Menon",
     date: "Sep 2025",
     description: "You’re not alone — here’s how I handle self-doubt in tech.",
-    link: "https://yourblog.com/imposter-syndrome",
+    link: "https://substack.com/@manjushmenon/p-163835591",
     icon: UserIcon,
   },
   {
@@ -41,7 +41,7 @@ export const blogs: Blog[] = [
     date: "Aug 2025",
     description:
       "Early in my development journey, I thought good code meant clever code. But after countless code reviews—I realized something deeper: clean, readable code is what truly makes a difference.",
-    link: "https://yourblog.com/code-reviews",
+    link: "https://substack.com/@manjushmenon/p-163835992",
     icon: DocumentTextIcon,
   },
   {
@@ -49,7 +49,7 @@ export const blogs: Blog[] = [
     author: "Manjush Menon",
     date: "Jul 2025",
     description: "How I Stopped Being a “Tutorial Addict”",
-    link: "https://yourblog.com/tutorial-addict",
+    link: "https://substack.com/@manjushmenon/p-163944947",
     icon: ClipboardDocumentCheckIcon,
   },
   {
@@ -58,7 +58,7 @@ export const blogs: Blog[] = [
     date: "Jun 2025",
     description:
       "You’d be surprised how much coding has in common with football.",
-    link: "https://yourblog.com/football-coding",
+    link: "https://substack.com/@manjushmenon/p-163794423",
     icon: SparklesIcon,
   },
   {
@@ -68,7 +68,7 @@ export const blogs: Blog[] = [
     date: "May 2025",
     description:
       "How to stay motivated and productive as a developer without burning out.",
-    link: "https://yourblog.com/sustainable-motivation",
+    link: "https://substack.com/@manjushmenon/p-168497055",
     icon: FireIcon,
   },
   {
@@ -77,7 +77,7 @@ export const blogs: Blog[] = [
     date: "Apr 2025",
     description:
       "The one question great developers ask all the time — and how it changed my mindset.",
-    link: "https://yourblog.com/asking-why",
+    link: "https://substack.com/@manjushmenon/p-164505792",
     icon: QuestionMarkCircleIcon,
   },
 ];
