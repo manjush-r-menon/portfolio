@@ -1,4 +1,4 @@
-import { getInputClasses } from './input-styles';
+import { getInputClasses } from "./input-styles";
 
 export default function Input({
   id,
@@ -8,7 +8,7 @@ export default function Input({
   className,
   error,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { 
+}: React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   error?: string;
 }) {
@@ -16,11 +16,11 @@ export default function Input({
     <div className={className}>
       <label
         htmlFor={id}
-        className="block text-sm/6 font-semibold text-zinc-900 dark:text-zinc-100"
+        className="block font-sans text-xs tracking-[0.06em] text-ink-dim uppercase"
       >
         {label}
       </label>
-      <div className="mt-2.5">
+      <div className="mt-2">
         <input
           id={id}
           type={type}
@@ -29,9 +29,7 @@ export default function Input({
           {...props}
         />
         {error && (
-          <p className="mt-2 text-xs text-red-600 dark:text-red-400">
-            {error}
-          </p>
+          <p className="mt-1.5 font-sans text-xs text-red-600">{error}</p>
         )}
       </div>
     </div>

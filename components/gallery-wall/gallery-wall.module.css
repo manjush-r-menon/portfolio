@@ -1,0 +1,296 @@
+/* Aspect-ratio-relative canvas: every frame below is positioned with
+   absolute percentages, so the whole wall scales fluidly with the
+   container's width instead of jumping at a fixed breakpoint. */
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 1150px;
+  aspect-ratio: 16 / 11;
+  margin: 0 auto;
+}
+
+/* 1150px is sized to look right against a large-monitor viewport (~60% of
+   a 1920px-wide screen), but the page has no max-width of its own — on
+   laptop/tablet widths the content column itself gets close to or past
+   1150px, so the gallery was hitting the same cap and reading as
+   dominant/cramped (confirmed at 1366px: frames were clipped above the
+   fold). Only the cap changes here — every frame is still positioned as a
+   % of this same .container, so shrinking it scales the whole wall
+   uniformly without moving anything relative to anything else. */
+@media (min-width: 641px) and (max-width: 1440px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+/* Base wall-mounted shadow, shared as a fallback. Each finish below
+   (.frameWhite / .frameBlackHero / .frameOval) restates this same
+   3-layer shadow alongside its own bevel, rather than relying on this
+   rule surviving the cascade — two classes on one element that both set
+   box-shadow don't "merge", the one later in the stylesheet simply wins
+   outright, so the finish classes have to carry the complete shadow. */
+.frame {
+  position: absolute;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow:
+    10px 18px 25px -4px rgba(0, 0, 0, 0.28),
+    0 6px 12px -2px rgba(0, 0, 0, 0.15),
+    0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 0.3s ease;
+}
+.frame:hover {
+  transform: translateY(-4px) scale(1.02);
+  z-index: 10;
+}
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.centerPoster {
+  position: absolute;
+  display: block;
+  object-fit: fill;
+}
+
+/* Frame finishes — a real mitred-corner bevel, built from flat (not
+   gradient) per-edge border colors: top/left get a slightly lighter
+   shade, bottom/right a slightly darker one. A *smooth* gradient is what
+   reads as glossy (that's literally how CSS fakes a specular highlight),
+   but a hard-edged split between two flat, close-in-value shades reads
+   as a genuine matte, painted-wood/lacquer bevel catching light from the
+   upper-left — dimensional without any shine. Depth also comes from the
+   soft wall shadow (.frame's, restated per the note above) and the
+   recessed mat below. */
+.frameWhite {
+  border-style: solid;
+  border-width: 12px;
+  border-top-color: #f6f5f1;
+  border-left-color: #f6f5f1;
+  border-bottom-color: #e2ded4;
+  border-right-color: #e2ded4;
+  box-shadow:
+    10px 18px 25px -4px rgba(0, 0, 0, 0.18),
+    0 6px 12px -2px rgba(0, 0, 0, 0.1),
+    0 1px 3px 0 rgba(0, 0, 0, 0.16);
+}
+.frameWhite:hover {
+  transform: translateY(-4px) scale(1.02);
+  z-index: 10;
+  box-shadow:
+    14px 24px 32px -4px rgba(0, 0, 0, 0.22),
+    0 8px 16px -2px rgba(0, 0, 0, 0.12),
+    0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+.frameBlackHero {
+  border-style: solid;
+  border-width: 16px;
+  border-top-color: #333330;
+  border-left-color: #333330;
+  border-bottom-color: #0a0a09;
+  border-right-color: #0a0a09;
+  box-shadow:
+    10px 18px 25px -4px rgba(0, 0, 0, 0.18),
+    0 6px 12px -2px rgba(0, 0, 0, 0.1),
+    0 1px 3px 0 rgba(0, 0, 0, 0.16);
+}
+.frameBlackHero:hover {
+  transform: translateY(-4px) scale(1.02);
+  z-index: 10;
+  box-shadow:
+    14px 24px 32px -4px rgba(0, 0, 0, 0.22),
+    0 8px 16px -2px rgba(0, 0, 0, 0.12),
+    0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+.frameOval {
+  border-style: solid;
+  border-width: 10px;
+  border-top-color: #f6f5f1;
+  border-left-color: #f6f5f1;
+  border-bottom-color: #e2ded4;
+  border-right-color: #e2ded4;
+  border-radius: 50%;
+  box-shadow:
+    10px 18px 25px -4px rgba(0, 0, 0, 0.18),
+    0 6px 12px -2px rgba(0, 0, 0, 0.1),
+    0 1px 3px 0 rgba(0, 0, 0, 0.16);
+}
+.frameOval:hover {
+  transform: translateY(-4px) scale(1.02);
+  z-index: 10;
+  box-shadow:
+    14px 24px 32px -4px rgba(0, 0, 0, 0.22),
+    0 8px 16px -2px rgba(0, 0, 0, 0.12),
+    0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Inner mat (passe-partout) — padding is a % of the frame's own size so
+   it stays proportional at any scale. Depth varies per frame, per spec.
+   The inset shadow is the mat board reading as recessed beneath the
+   frame's rim, not flush with it. */
+.mat {
+  width: 100%;
+  height: 100%;
+  background-color: #fcfaf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 2px 3px 8px rgba(0, 0, 0, 0.22);
+}
+.matSlim {
+  padding: 5%;
+}
+.matStandard {
+  padding: 8%;
+}
+.matMedium {
+  padding: 10%;
+}
+.matWide {
+  padding: 12%;
+}
+.matDeep {
+  padding: 14%;
+}
+.matHero {
+  padding: 16%;
+}
+.matNone {
+  padding: 0;
+}
+
+/* Wraps the photo itself — a tight inset shadow where the mat's cut
+   edge presses down onto the print, giving the artwork a hair of
+   physical depth instead of sitting perfectly flat with the mat. */
+.artContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.45);
+}
+.artContainer.oval {
+  border-radius: 50%;
+}
+
+/* Exact canvas placement, as % of the container. */
+/* 1. Top-Left Primary — architectural/abstract wall */
+.f1 {
+  left: 10%;
+  top: 17%;
+  width: 25%;
+  height: 26%;
+}
+/* 2. Top-Center Left — desert group portrait */
+.f2 {
+  left: 37%;
+  top: 11.5%;
+  width: 15%;
+  height: 19.5%;
+}
+/* 3. Top-Center Right — stylized solo portrait */
+.f3 {
+  left: 53.5%;
+  top: 12%;
+  width: 10.5%;
+  height: 19%;
+}
+/* 4. Hero Center Anchor — the focal point */
+.f4 {
+  left: 36.5%;
+  top: 33%;
+  width: 27%;
+  height: 38.5%;
+}
+/* 5. Top-Right Column — colorful abstract painting */
+.f5 {
+  left: 65%;
+  top: 19.5%;
+  width: 19%;
+  height: 37%;
+}
+/* 6. Far-Right Edge — street photography */
+.f6 {
+  left: 85.5%;
+  top: 39.5%;
+  width: 14.5%;
+  height: 17%;
+}
+/* 7. Mid-Far-Left — indoor scene */
+.f7 {
+  left: 1.5%;
+  top: 46%;
+  width: 14.5%;
+  height: 16%;
+}
+/* 8. Lower-Left Mini Oval — intimate pair portrait */
+.f8 {
+  left: 8%;
+  top: 63.5%;
+  width: 8%;
+  height: 15%;
+}
+/* 9. Lower-Left Primary — figures on outdoor field */
+.f9 {
+  left: 17%;
+  top: 45.5%;
+  width: 18.5%;
+  height: 38.5%;
+}
+/* 10. Bottom-Center Left — coastal landscape */
+.f10 {
+  left: 37%;
+  top: 73.5%;
+  width: 15%;
+  height: 18.5%;
+}
+/* 11. Bottom-Center Right — monochrome portrait */
+.f11 {
+  left: 53.5%;
+  top: 73.5%;
+  width: 10.5%;
+  height: 18.5%;
+}
+/* 12. Lower-Right Oval — festive outdoor portrait */
+.f12 {
+  left: 65%;
+  top: 58.5%;
+  width: 10.5%;
+  height: 19.5%;
+}
+/* 13. Lower-Right Column — studio portrait sitting */
+.f13 {
+  left: 76.5%;
+  top: 58.5%;
+  width: 15%;
+  height: 24.5%;
+}
+
+/* Mobile: absolute positioning doesn't reflow, so switch to a simple
+   wrapped two-column layout instead. */
+@media (max-width: 640px) {
+  .container {
+    aspect-ratio: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    height: auto;
+  }
+  /* Cancels every frame's absolute placement so they rejoin flow. */
+  .container > div,
+  .container > .centerPoster {
+    position: static;
+    top: auto;
+    left: auto;
+    width: 45%;
+    max-width: 200px;
+    height: 150px;
+  }
+}

@@ -1,23 +1,21 @@
-import { Button } from "@/components/button/botton";
-import { Container } from "@/components/container/container";
+import { GoalMissIllustration } from "@/components/goal-miss-illustration/goal-miss-illustration";
+import { PillButton } from "@/components/pill-button/pill-button";
 
 export default function NotFound() {
   return (
-    <Container className="flex h-full items-center">
-      <div className="flex flex-col items-center">
-        <p className="text-base font-semibold text-zinc-400 dark:text-zinc-500">
-          404
-        </p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
-          Page not found
-        </h1>
-        <p className="mt-4 text-base text-zinc-600 dark:text-zinc-400">
-          Sorry, we couldn’t find the page you’re looking for.
-        </p>
-        <Button href="/" variant="secondary" className="mt-4">
-          Go back home
-        </Button>
-      </div>
-    </Container>
+    <div className="flex min-h-[60vh] w-full flex-col items-center justify-center text-center">
+      <GoalMissIllustration className="h-32 w-auto sm:h-40" />
+
+      <h1 className="mt-8 font-display text-3xl font-medium text-ink sm:text-4xl">
+        Dove the wrong way on this one.
+      </h1>
+      <p className="mt-4 font-sans text-[15px] text-ink-dim">
+        The page you&apos;re after isn&apos;t here — 404.
+      </p>
+
+      <PillButton href="/" className="mt-8">
+        Back to safe ground →
+      </PillButton>
+    </div>
   );
 }
