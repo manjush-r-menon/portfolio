@@ -142,15 +142,15 @@ export function Preloader({ children }: { children: React.ReactNode }) {
       tl.call(() => markPreloaderDone(), [], 0.5);
     });
 
+    const wordEl = wordRef.current;
+    const preloaderEl = preloaderRef.current;
+    const pathEl = pathRef.current;
+    const contentEl = contentRef.current;
+
     return () => {
       window.removeEventListener("resize", handleResize);
       revealCall.kill();
-      gsap.killTweensOf([
-        wordRef.current,
-        preloaderRef.current,
-        pathRef.current,
-        contentRef.current,
-      ]);
+      gsap.killTweensOf([wordEl, preloaderEl, pathEl, contentEl]);
       document.body.style.overflow = "";
     };
   }, []);

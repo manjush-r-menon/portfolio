@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Lenis from "lenis";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 
 const LenisContext = createContext<Lenis | null>(null);
 
@@ -24,8 +25,11 @@ export function useLenis() {
 
 /**
  * Feeds a damped scroll value back to the browser for a smoother feel.
- * Skips instantiation entirely under reduced motion, so those users get
- * plain native scroll. framer-motion's `useScroll` reads real
+ * Skips instantiation entirely under reduced motion or on mobile-scroll
+ * widths (see MOBILE_SCROLL_BREAKPOINT), so those users get plain native
+ * scroll — Lenis's touch handling is a known source of scroll-hijack/
+ * momentum conflicts on mobile Safari, and nothing on mobile needs Lenis's
+ * scroll-position control. framer-motion's `useScroll` reads real
  * `window.scrollY`, which Lenis drives directly (no transform-based
  * virtual scroll), so scroll-linked animations elsewhere keep working
  * unmodified.
@@ -36,10 +40,11 @@ export function SmoothScrollProvider({
   children: React.ReactNode;
 }) {
   const reduced = useReducedMotion();
+  const isMobileScroll = useIsMobileScroll();
   const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || isMobileScroll) return;
 
     const instance = new Lenis({
       lerp: 0.035,
@@ -60,7 +65,7 @@ export function SmoothScrollProvider({
       instance.destroy();
       setLenis(null);
     };
-  }, [reduced]);
+  }, [reduced, isMobileScroll]);
 
   return (
     <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>

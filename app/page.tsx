@@ -18,6 +18,7 @@ import {
   getBlogMarqueePinVh,
   pxToPinVh,
 } from "@/components/blog-marquee/blog-marquee";
+import { BlogMarqueeMobileStrip } from "@/components/blog-marquee/blog-marquee-mobile-strip";
 import heroImage from "@/images/hero-section-image.png";
 
 const INSTRUMENTS = [
@@ -211,6 +212,26 @@ export default function Home() {
     </div>
   );
 
+  // Mobile replacement for panel 4 — a native, swipeable card strip
+  // (see BlogMarqueeMobileStrip) instead of the desktop marquee's
+  // smooothy-driven peel, which is entangled with PinnedTrack's pin that
+  // the mobile tree never mounts (see MOBILE-SCROLL-PLAN.md §4).
+  const blogMarqueeMobileContent = (
+    <div className="flex min-h-[60vh] w-full flex-col justify-center">
+      <IndexLabel index="04" />
+      <h2 className="grotesk-display mt-4 text-[clamp(2.5rem,6vw,4.5rem)]">
+        <span className="block">From the</span>
+        <span className="block">blog</span>
+      </h2>
+      <p className="mt-4 max-w-xs font-sans text-[15px] leading-[1.7] text-ink-dim">
+        A running list of what I&apos;ve been writing about. Swipe to browse.
+      </p>
+      <div className="mt-8">
+        <BlogMarqueeMobileStrip />
+      </div>
+    </div>
+  );
+
   const section4Content = (
     <div className="relative flex min-h-[60vh] w-full flex-col justify-center">
       <AmbientShape
@@ -251,6 +272,9 @@ export default function Home() {
     {
       key: "blog-marquee",
       content: <div className={panelWrapClass}>{blogMarqueeContent}</div>,
+      mobileContent: (
+        <div className={panelWrapClass}>{blogMarqueeMobileContent}</div>
+      ),
     },
     {
       key: "closing",

@@ -1,11 +1,11 @@
 "use client";
 
-import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { CONTACT_INFO } from "@/utils/contact-info";
 import { useKochiTime } from "@/utils/use-kochi-time";
 import { MagneticIcon } from "@/components/magnetic-icon/magnetic-icon";
 import { BloomPanel } from "@/components/bloom-panel/bloom-panel";
+import { ArrowIcon } from "@/components/icon-components/arrow-icon";
 import { InstagramIcon } from "@/components/icon-components/instagram-icon";
 import { LinkedInIcon } from "@/components/icon-components/linked-in-icon";
 import { GmailIcon } from "@/components/icon-components/gmail-icon";
@@ -35,17 +35,6 @@ const INFO_ROWS = [
     href: CONTACT_INFO.phone.href,
   },
   { label: "Based", value: CONTACT_INFO.based },
-] as const;
-
-const LINK_ROWS = [
-  {
-    label: "Github",
-    href: `https://github.com/${CONTACT_INFO.github}`,
-  },
-  {
-    label: "LinkedIn",
-    href: `https://www.linkedin.com/in/${CONTACT_INFO.linkedin}/`,
-  },
 ] as const;
 
 // `boxed` wraps the icon in an explicit dark square (see the render below)
@@ -119,8 +108,25 @@ export default function Contact() {
 
   return (
     <>
-      <div className="-mx-6 -mt-28 -mb-20 flex min-h-[calc(100vh-4.5rem)] flex-col border-b border-line pt-24 sm:-mx-10 sm:-mt-36 sm:-mb-16 lg:-mx-16 lg:flex-row xl:-mx-24">
-      <h1 className="relative flex flex-1 flex-col justify-start overflow-hidden pb-10">
+      {/* `-mb-*` (cancelling <main>'s own reserved bottom padding — see
+          app/layout.tsx's `pb-20 sm:pb-16`, there specifically so content
+          never sits under the `fixed` SiteFooter bar) is desktop-only.
+          Cancelling it used to be safe unconditionally because the "Or
+          find me here" social-icon block always re-filled that reclaimed
+          space — now that block is desktop-only (`lg:flex`, see below), so
+          mobile needs to keep <main>'s real padding or its last visible
+          content (the availability line) ends up hidden behind the fixed
+          footer instead of just missing the padding. */}
+      <div className="-mx-6 -mt-28 flex flex-col border-b border-line pt-24 sm:-mx-10 sm:-mt-36 lg:-mb-16 lg:min-h-[calc(100vh-4.5rem)] lg:-mx-16 lg:flex-row xl:-mx-24">
+      {/* `flex-1`/full-viewport `min-h` are desktop-only (lg:) — they exist
+          to make the two-column hero fill exactly one screen there. Mobile
+          dropped "Get in touch" and now has noticeably less content (see
+          the reference structure this matches), so forcing that same
+          full-height on mobile would just relocate the leftover space into
+          an oversized gap somewhere rather than actually shrinking the
+          page — natural content height reads as the compact, snug flow
+          the reference has. */}
+      <h1 className="relative flex flex-col justify-start overflow-hidden pb-10 lg:flex-1">
         {WORDS.map((word, index) =>
           index === 1 ? (
             <div key={word.text} className="flex items-end gap-10">
@@ -146,31 +152,62 @@ export default function Contact() {
         )}
       </h1>
 
-      <div className="relative flex w-full flex-col items-start justify-end gap-24 border-t border-line px-6 pb-10 sm:px-10 lg:w-[26rem] lg:gap-8 lg:border-t-0 lg:px-0 lg:pb-16">
-        <div className="lg:hidden">{getInTouch}</div>
-
+      <div className="relative flex w-full flex-col items-start justify-end gap-8 border-t border-line px-6 pb-10 sm:px-10 lg:w-[26rem] lg:border-t-0 lg:px-0 lg:pb-16">
         {/* Divider line (desktop only, unchanged) plus the "Connect now"
             trigger — merged into one flex-1 self-stretch container so the
             button centers vertically in that same gap via plain flexbox
             (items-center/justify-center), with no JS measurement needed.
             Unconditional (not hidden on mobile) so there's exactly one
             rendered instance of BloomPanel — sharing its open/close state
-            correctly — while still centering usefully in the equivalent
-            mobile gap between "Get in touch" and the EMAIL/PHONE/BASED
-            block. */}
-        <div className="relative flex flex-1 items-center justify-center self-stretch">
+            correctly. `order-2 lg:order-1` puts it after the email/phone/
+            based block on mobile (matching the reference structure: words
+            → divider → info → connect/socials → divider → availability)
+            while keeping desktop's original visual order unchanged.
+            `flex-1`/`self-stretch` are desktop-only now too — on mobile,
+            with no forced full-viewport height above, there's no leftover
+            space left for flex-grow to (mis)distribute into. */}
+        <div className="relative order-2 flex flex-col items-center justify-center gap-6 lg:order-1 lg:flex-1 lg:self-stretch">
           <div className="absolute inset-y-0 left-0 hidden w-px bg-line lg:block" />
           <BloomPanel />
+
+          {/* Compact text-link row, mobile only — the desktop big-icon
+              "Or find me here" row further down (components/contact-me's
+              75px icons) covers these same links there instead. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 lg:hidden">
+            {SOCIAL_ICON_LINKS.map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  href.startsWith("http") ? "noopener noreferrer" : undefined
+                }
+                className="inline-flex items-center gap-1 rounded-sm font-sans text-xs tracking-[0.08em] text-ink-dim uppercase transition-colors hover:text-accent-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+              >
+                {label}
+                <ArrowIcon className="h-3 w-3 -rotate-45" />
+              </a>
+            ))}
+          </div>
         </div>
 
-        <motion.div className="w-72 space-y-4 lg:-ml-36" {...fadeUp(0.25)}>
-          <dl className="grid grid-cols-[auto_1fr] items-baseline gap-x-6 gap-y-1.5">
+        <motion.div
+          className="order-1 w-full space-y-4 lg:order-2 lg:w-72 lg:-ml-36"
+          {...fadeUp(0.25)}
+        >
+          {/* Mobile (the reference structure this matches): each row
+              stacks label-then-value, both left-aligned — a plain flex
+              column of per-row wrappers. `lg:contents` on each wrapper
+              drops it from layout at desktop so dt/dd become direct grid
+              items again, restoring the original side-by-side, right-
+              aligned grid there unchanged. */}
+          <dl className="flex flex-col gap-5 lg:grid lg:grid-cols-[auto_1fr] lg:items-baseline lg:gap-x-6 lg:gap-y-1.5">
             {infoRows.map((row) => (
-              <Fragment key={row.label}>
+              <div key={row.label} className="flex flex-col gap-1 lg:contents">
                 <dt className="inline-flex items-center gap-1.5 font-sans text-xs tracking-[0.06em] text-ink-dim uppercase">
                   {row.label}
                 </dt>
-                <dd className="justify-self-end text-right font-sans text-sm text-ink">
+                <dd className="font-sans text-sm text-ink lg:justify-self-end lg:text-right">
                   {"href" in row && row.href ? (
                     <a
                       href={row.href}
@@ -190,13 +227,13 @@ export default function Contact() {
                     row.value
                   )}
                 </dd>
-              </Fragment>
+              </div>
             ))}
           </dl>
         </motion.div>
 
         <motion.div
-          className="hidden items-center gap-2.5 lg:absolute lg:top-1/2 lg:right-6 lg:flex lg:-translate-y-1/2 lg:[writing-mode:vertical-rl]"
+          className="order-3 flex w-full items-center gap-2.5 border-t border-line pt-6 lg:w-auto lg:border-t-0 lg:pt-0 lg:absolute lg:top-1/2 lg:right-6 lg:-translate-y-1/2 lg:[writing-mode:vertical-rl]"
           {...fadeUp(0.35)}
         >
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#4c9a5a]" />
@@ -207,7 +244,11 @@ export default function Contact() {
       </div>
       </div>
 
-      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+      {/* Big (75px) social icons read as a deliberate desktop flourish, not
+          a primary contact path — email/phone/the Connect panel above
+          already cover that on mobile — so this row is hidden below `lg`
+          rather than shrunk down to fit. */}
+      <div className="hidden min-h-[60vh] flex-col items-center justify-center lg:flex">
         <motion.p
           className="font-sans text-xs tracking-[0.08em] text-accent-ink uppercase"
           {...fadeUp(0.35)}

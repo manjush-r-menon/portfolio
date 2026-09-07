@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import { CARD_REVEAL_CATEGORIES } from "@/data/card-reveal-data";
+import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,10 +19,11 @@ export function HeroScatter({ reduced }: { reduced: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
   const heroCardsRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isMobileScroll = useIsMobileScroll();
 
   useGSAP(
     () => {
-      if (!heroRef.current || window.innerWidth <= 1000) return;
+      if (!heroRef.current || isMobileScroll) return;
 
       // See the equivalent comment in pinned-reveal.tsx: `reduced` lags one
       // tick behind the real OS setting on first mount, so check matchMedia
@@ -80,8 +82,31 @@ export function HeroScatter({ reduced }: { reduced: boolean }) {
 
       return () => trigger.kill();
     },
-    { scope: heroRef, dependencies: [reduced] }
+    {
+      scope: heroRef,
+      dependencies: [reduced, isMobileScroll],
+      // Without this, GSAP-related objects (the ScrollTrigger created below)
+      // only revert on unmount, not on each dependency change — `reduced`
+      // and `isMobileScroll` can both flip mid-session (OS setting toggle,
+      // resize/orientation change), and the stale trigger would otherwise
+      // keep driving gsap.set() on these cards after the mobile/reduced
+      // branch has already decided to skip creating a new one.
+      revertOnUpdate: true,
+    }
   );
+
+  // On mobile, the ScrollTrigger scatter above never runs (the useGSAP
+  // callback bails on `isMobileScroll` before it builds one — see above),
+  // so this section would otherwise sit there as a full 100svh screen of
+  // static, non-animated cards carrying no real information (just each
+  // category's title/index — the actual description lives on PinnedReveal's
+  // flip-card backs, further down). Skipping the section outright on mobile
+  // moves straight from the case studies into AboutDivider's "Keep
+  // scrolling — it gets good" instead of padding the scroll with a dead,
+  // duplicate screen first.
+  if (isMobileScroll) {
+    return null;
+  }
 
   return (
     <section
