@@ -223,7 +223,13 @@ export default {
             marginBottom: theme("spacing.20"),
             borderTopWidth: "1px",
             borderColor: "var(--tw-prose-hr)",
-            "@screen lg": {
+            // Tailwind v4 dropped the `@screen <name>` at-rule the v3
+            // typography plugin used to accept here — silently parsed as
+            // invalid and dropped (see the Turbopack "Unknown at rule:
+            // @screen" build warning this replaces), so the negative
+            // margins never actually applied at `lg` and up. A literal
+            // media query is what v4's compiler expects instead.
+            [`@media (min-width: ${theme("screens.lg")})`]: {
               marginLeft: `calc(${theme("spacing.12")} * -1)`,
               marginRight: `calc(${theme("spacing.12")} * -1)`,
             },

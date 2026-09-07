@@ -1,5 +1,17 @@
 import clsx from "clsx";
 import galleryCenterPoster from "@/images/gallery-center-poster.svg";
+import galleryImage1 from "@/images/gallery-image-1.jpg";
+import galleryImage2 from "@/images/gallery-image-2.jpg";
+import galleryImage3 from "@/images/gallery-image-3.jpg";
+import galleryImage4 from "@/images/gallery-image-4.jpg";
+import galleryImage5 from "@/images/gallery-image-5.jpg";
+import galleryImage6 from "@/images/gallery-image-6.jpg";
+import galleryImage7 from "@/images/gallery-image-7.jpg";
+import galleryImage8 from "@/images/gallery-image-8.png";
+import galleryImage9 from "@/images/gallery-image-9.png";
+import galleryImage10 from "@/images/gallery-image-10.png";
+import galleryImage11 from "@/images/gallery-image-11.png";
+import galleryImage12 from "@/images/gallery-image-12.png";
 import styles from "./gallery-wall.module.css";
 
 type Frame = {
@@ -10,32 +22,34 @@ type Frame = {
   alt: string;
 };
 
-// Dummy placeholder photos — swap `src` for real ones later, everything
-// else (frame style, position, size) can stay as-is.
+// Real photos, swapped in for the original dummy Unsplash placeholders.
+// gallery-image-7 was originally a joke meme-sticker edit not meant for the
+// portfolio and got swapped out for a real replacement — all 12 slots
+// (barring f4's own dedicated centerpiece poster) are real photos now.
 const FRAMES: Frame[] = [
   {
-    // 1. Top-Left Primary — architectural/abstract wall
+    // 1. Top-Left Primary — misty hillside
     pos: "f1",
     finish: "frameWhite",
     mat: "matWide",
-    src: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=500",
-    alt: "Architectural abstract wall",
+    src: galleryImage1.src,
+    alt: "Misty hillside with trees emerging from fog",
   },
   {
-    // 2. Top-Center Left — desert group portrait
+    // 2. Top-Center Left — hilltop selfie
     pos: "f2",
     finish: "frameWhite",
     mat: "matStandard",
-    src: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400",
-    alt: "Desert group portrait",
+    src: galleryImage2.src,
+    alt: "Sitting on a hilltop with a selfie stick under an overcast sky",
   },
   {
-    // 3. Top-Center Right — stylized solo portrait
+    // 3. Top-Center Right — lakeside view
     pos: "f3",
     finish: "frameWhite",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300",
-    alt: "Stylized solo portrait",
+    src: galleryImage3.src,
+    alt: "Two people looking out over a lake from a grassy bank",
   },
   {
     // 4. Hero Center Anchor — the focal point
@@ -46,76 +60,76 @@ const FRAMES: Frame[] = [
     alt: "Live life with passion and purpose — typographic poster, centerpiece",
   },
   {
-    // 5. Top-Right Column — colorful abstract painting
+    // 5. Top-Right Column — fisheye street action
     pos: "f5",
     finish: "frameWhite",
     mat: "matDeep",
-    src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400",
-    alt: "Colorful abstract painting",
+    src: galleryImage4.src,
+    alt: "Fisheye shot of a jump between a bus and a car on a road",
   },
   {
-    // 6. Far-Right Edge — street photography
+    // 6. Far-Right Edge — motorcycle on a forest road
     pos: "f6",
     finish: "frameWhite",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=300",
-    alt: "Street photography",
+    src: galleryImage5.src,
+    alt: "Motorcycle rounding a curve on a tree-lined road",
   },
   {
-    // 7. Mid-Far-Left — indoor scene
+    // 7. Mid-Far-Left — silhouette at sunset
     pos: "f7",
     finish: "frameWhite",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300",
-    alt: "Indoor scene",
+    src: galleryImage6.src,
+    alt: "Silhouette against sunlight filtering through trees",
   },
   {
-    // 8. Lower-Left Mini Oval — intimate pair portrait
+    // 8. Lower-Left Mini Oval — yak and mountain lake
     pos: "f8",
     finish: "frameOval",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300",
-    alt: "Intimate pair portrait",
+    src: galleryImage7.src,
+    alt: "Standing beside a decorated yak by a snowy mountain lake",
   },
   {
-    // 9. Lower-Left Primary — figures on outdoor field
+    // 9. Lower-Left Primary — Kathakali performer, close up
     pos: "f9",
     finish: "frameWhite",
     mat: "matMedium",
-    src: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=400",
-    alt: "Figures on an outdoor field",
+    src: galleryImage8.src,
+    alt: "Kathakali performer's face paint and headdress, close up",
   },
   {
-    // 10. Bottom-Center Left — coastal landscape
+    // 10. Bottom-Center Left — Kathakali face paint detail
     pos: "f10",
     finish: "frameWhite",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400",
-    alt: "Coastal landscape",
+    src: galleryImage9.src,
+    alt: "Close-up of gold and green Kathakali face paint",
   },
   {
-    // 11. Bottom-Center Right — monochrome portrait
+    // 11. Bottom-Center Right — balloon seller
     pos: "f11",
     finish: "frameWhite",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=300",
-    alt: "Monochrome figure portrait",
+    src: galleryImage10.src,
+    alt: "Boy holding smiley-face balloons at a night market",
   },
   {
-    // 12. Lower-Right Oval — festive outdoor portrait
+    // 12. Lower-Right Oval — temple elephant
     pos: "f12",
     finish: "frameOval",
     mat: "matSlim",
-    src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300",
-    alt: "Festive outdoor portrait",
+    src: galleryImage11.src,
+    alt: "Decorated temple elephant led through a doorway",
   },
   {
-    // 13. Lower-Right Column — studio portrait sitting
+    // 13. Lower-Right Column — Kathakali playing-card design
     pos: "f13",
     finish: "frameWhite",
     mat: "matDeep",
-    src: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
-    alt: "Studio portrait, sitting",
+    src: galleryImage12.src,
+    alt: "Playing-card style graphic of a Kathakali performer, King of Kathakali",
   },
 ];
 

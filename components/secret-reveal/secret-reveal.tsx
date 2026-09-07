@@ -51,8 +51,9 @@ export function SecretReveal({
   }
 
   useEffect(() => {
+    const spotValue = spot.current;
     return () => {
-      gsap.killTweensOf(spot.current);
+      gsap.killTweensOf(spotValue);
     };
   }, []);
 

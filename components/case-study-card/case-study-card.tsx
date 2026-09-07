@@ -14,15 +14,28 @@ export function CaseStudyCard({
   animate?: boolean;
 }) {
   const reduced = useReducedMotion();
-  const shouldAnimate = animate && !reduced;
 
   return (
     <motion.article
       className="grid grid-cols-1 gap-4 border-t border-line py-10 last:border-b md:grid-cols-[56px_1fr] md:gap-10"
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : false}
-      whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      // `initial`/`whileInView` are gated on `animate` only — a static prop
+      // supplied by the caller, identical on server and client — NOT on
+      // `reduced`. Conditioning `initial` itself on `reduced` bakes a
+      // different value into this statically prerendered page's SSR output
+      // (built with no `window`, so it can't know a given visitor's real
+      // preference) than what a reduced-motion visitor's client render
+      // resolves to; since `initial` only ever applies once, at that first
+      // mismatched commit, the card was left permanently stuck at
+      // opacity: 0 with nothing left to animate it back (confirmed via
+      // Playwright). Keeping `initial`/`whileInView` unconditional here and
+      // varying only `transition.duration` sidesteps that: a reduced-motion
+      // visitor still reaches opacity 1, via an instant snap instead of a
+      // fade, rather than never reaching it (same fix as the Home page's
+      // mobile panel reveals).
+      initial={animate ? { opacity: 0, y: 20 } : false}
+      whileInView={animate ? { opacity: 1, y: 0 } : undefined}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: shouldAnimate ? 0.5 : 0, ease: "easeOut" }}
+      transition={{ duration: animate && !reduced ? 0.5 : 0, ease: "easeOut" }}
     >
       <IndexLabel index={study.index} />
 

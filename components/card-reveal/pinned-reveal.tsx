@@ -12,6 +12,7 @@ import {
   CARD_REVEAL_CATEGORIES,
   type CardRevealCategory,
 } from "@/data/card-reveal-data";
+import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -196,6 +197,7 @@ export function PinnedReveal({
   // desktop width + no reduced-motion preference.
   const [mode, setMode] = useState<"static" | "animated">("static");
   const [inView, setInView] = useState(false);
+  const isMobileScroll = useIsMobileScroll();
 
   const servicesRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -224,12 +226,12 @@ export function PinnedReveal({
       (typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
-    if (prefersReduced || window.innerWidth <= 1000) {
+    if (prefersReduced || isMobileScroll) {
       setMode("static");
     } else {
       setMode("animated");
     }
-  }, [reduced]);
+  }, [reduced, isMobileScroll]);
 
   useGSAP(
     () => {
@@ -437,7 +439,18 @@ export function PinnedReveal({
         applyDriverProgressRef.current = null;
       };
     },
-    { scope: servicesRef, dependencies: [mode] }
+    {
+      scope: servicesRef,
+      dependencies: [mode],
+      // Without this, the pin/spacer/ScrollTrigger instances created below
+      // only revert on unmount, not on each `mode` change — leaving a real,
+      // DOM-mutating pin-spacer orphaned if `mode` flips from "animated"
+      // back to "static" mid-session (e.g. a resize into mobile-scroll
+      // width while pinned). `mode` transitions are exactly this kind of
+      // "different animations depending on state, don't want the old ones
+      // lingering" case revertOnUpdate is documented for.
+      revertOnUpdate: true,
+    }
   );
 
   // The layer (and the header/cards inside it) mount via the portal below

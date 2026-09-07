@@ -9,8 +9,8 @@ export default function PageUnderConstruction() {
           Under Construction
         </h1>
         <p className="mt-4 text-base text-zinc-600 dark:text-zinc-400 text-center ">
-          We're working hard to bring you something amazing. Please check back
-          soon!
+          We&apos;re working hard to bring you something amazing. Please
+          check back soon!
         </p>
         <Button href="/" variant="secondary" className="mt-8">
           Go back home

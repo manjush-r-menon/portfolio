@@ -1,4 +1,7 @@
+"use client";
+
 import clsx from "clsx";
+import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
 
 export function AboutDivider({
@@ -6,6 +9,18 @@ export function AboutDivider({
 }: {
   sectionRef?: React.Ref<HTMLElement>;
 }) {
+  const isMobileScroll = useIsMobileScroll();
+
+  // A full 100svh "keep scrolling" beat makes sense on desktop as a pause
+  // between HeroScatter's scatter and PinnedReveal's pin — on mobile,
+  // HeroScatter no longer renders anything before this (see its own doc
+  // comment) and PinnedReveal falls back to its plain static layout, so
+  // this would just be an extra empty screen of scroll between the case
+  // studies and the actually-informative services section.
+  if (isMobileScroll) {
+    return null;
+  }
+
   return (
     <section
       ref={sectionRef}

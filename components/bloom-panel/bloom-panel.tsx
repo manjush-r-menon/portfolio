@@ -186,6 +186,13 @@ export function BloomPanel({
   // button, and therefore this component, is mounted the whole time the
   // Contact page is open).
   const openedAtRef = useRef(0);
+  // Mirrors `isOpen` for the useGSAP rebuild below, which can't put `isOpen`
+  // itself in its dependency array without turning every open/close click
+  // into a full timeline rebuild (see that dependency array's own comment).
+  const isOpenRef = useRef(isOpen);
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
 
   const panelId = useId();
   const nameFieldId = `${panelId}-name`;
@@ -205,9 +212,12 @@ export function BloomPanel({
   // modal. overflow-y-auto on the form content below is the actual safety
   // net regardless of this clamp being exactly right.
   // Recomputed on resize; see the useGSAP dependencies below — a resize
-  // while the panel is open will snap it shut (a rebuilt timeline starts
-  // paused at 0 again), a known, accepted edge case rather than added
-  // complexity to preserve mid-animation state across a rebuild.
+  // (including one triggered by opening/closing devtools, which resizes
+  // the viewport just like dragging a window edge does) rebuilds the
+  // timeline from scratch, paused at 0 (closed) by default. Without the
+  // isOpenRef re-sync in that effect, a resize while open used to snap the
+  // panel invisible while `isOpen`/the button's "Close" label stayed
+  // unchanged — a real state/visual desync, not just a re-layout.
   useEffect(() => {
     const compute = () =>
       setPanelSize({
@@ -312,6 +322,15 @@ export function BloomPanel({
         { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
         0.75
       );
+
+      // If a resize (devtools open/close, window drag, orientation change)
+      // rebuilt this timeline while the panel was actually open, the fresh
+      // timeline above starts paused at its closed (t=0) state regardless —
+      // jump it straight to fully-open instead of leaving `isOpen`/the
+      // button label saying "open" while the panel itself renders hidden.
+      if (isOpenRef.current) {
+        tl.progress(1);
+      }
 
       tlRef.current = tl;
     },
