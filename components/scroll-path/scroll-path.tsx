@@ -118,7 +118,41 @@ export function ScrollPath() {
         },
       });
 
+      // Defense in depth against the row images (see their `aspect-[...]`
+      // classes above) loading late and the section still growing anyway —
+      // e.g. a future row added without an aspect-ratio set. There's
+      // already a site-wide fixup for exactly this (ScrollTriggerRefresh,
+      // mounted once in app/providers.tsx), but it scans `document.images`
+      // a single time, at the very first page this session loads — it can
+      // never see images that show up later by navigating client-side into
+      // this page, which is how this route is normally reached (see
+      // components/page-transition/transition-link.tsx: next/link + a
+      // curtain transition, never a full reload). Watching our own four
+      // images directly here means the refresh fires no matter how the
+      // user arrived.
+      const rowImages = Array.from(rows.querySelectorAll("img"));
+      const pendingImages = rowImages.filter((img) => !img.complete);
+      let onImageSettled: (() => void) | undefined;
+
+      if (pendingImages.length > 0) {
+        let remaining = pendingImages.length;
+        onImageSettled = () => {
+          remaining -= 1;
+          if (remaining === 0) tween.scrollTrigger?.refresh();
+        };
+        pendingImages.forEach((img) => {
+          img.addEventListener("load", onImageSettled!);
+          img.addEventListener("error", onImageSettled!);
+        });
+      }
+
       return () => {
+        if (onImageSettled) {
+          pendingImages.forEach((img) => {
+            img.removeEventListener("load", onImageSettled!);
+            img.removeEventListener("error", onImageSettled!);
+          });
+        }
         tween.scrollTrigger?.kill();
         tween.kill();
       };
@@ -177,12 +211,26 @@ export function ScrollPath() {
         className="relative z-0 flex w-full flex-col gap-20 overflow-hidden p-8 lg:gap-40"
       >
         {/* Row 1 — full-width image */}
+        {/* Each row image below sets `aspect-[<intrinsic w>/<intrinsic h>]`
+            (read straight off the source SVG's own width/height attributes)
+            instead of `h-full`. `h-full` against these rows' auto-height
+            wrapping divs is circular — the div's height comes from its
+            content, but the img's height was 100% *of* that div — so before
+            each image actually loaded, the row collapsed toward 0px. That's
+            what let `rows`' measured height (and therefore ScrollTrigger's
+            `end: "bottom bottom"`, which reads `rows`' real height — see
+            this component's own doc comment) come out far short of the
+            page's true, fully-loaded height whenever this route is reached
+            via client-side navigation (no full reload to naturally stall
+            past the image requests first). A static aspect-ratio gives each
+            row a definite height derived from its own width alone, known at
+            layout time, with no dependency on the image having loaded. */}
         <div className="flex justify-center">
           <div className="w-full lg:w-1/2">
             <img
               src={buildingAWebsiteImage.src}
               alt="Illustration of a person building a website"
-              className="h-full w-full object-cover"
+              className="aspect-[702.49975/680.4175] w-full object-cover"
             />
           </div>
         </div>
@@ -205,7 +253,7 @@ export function ScrollPath() {
             <img
               src={programmingImage.src}
               alt="Illustration of a person programming at a desk"
-              className="h-full w-full object-cover"
+              className="aspect-[800/572.62] w-full object-cover"
             />
           </div>
         </div>
@@ -216,7 +264,7 @@ export function ScrollPath() {
             <img
               src={juniorSoccerImage.src}
               alt="Illustration of a young soccer player"
-              className="h-full w-full object-cover"
+              className="aspect-[856.97376/510.42687] w-full object-cover"
             />
           </div>
           <div className="flex flex-1 flex-col justify-center">
@@ -236,7 +284,7 @@ export function ScrollPath() {
             <img
               src={codeThinkingImage.src}
               alt="Illustration of a person thinking through code"
-              className="h-full w-full object-cover"
+              className="aspect-[960/417.517] w-full object-cover"
             />
           </div>
         </div>

@@ -1,0 +1,67 @@
+{
+  "hero-section-image": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/hero-section-image.jpg",
+    "width": 1024,
+    "height": 1536
+  },
+  "gallery-image-1": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-1.jpg",
+    "width": 612,
+    "height": 344
+  },
+  "gallery-image-2": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-2.jpg",
+    "width": 487,
+    "height": 274
+  },
+  "gallery-image-3": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-3.jpg",
+    "width": 506,
+    "height": 284
+  },
+  "gallery-image-4": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-4.jpg",
+    "width": 860,
+    "height": 484
+  },
+  "gallery-image-5": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-5.jpg",
+    "width": 505,
+    "height": 284
+  },
+  "gallery-image-6": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-6.jpg",
+    "width": 505,
+    "height": 284
+  },
+  "gallery-image-7": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-7.jpg",
+    "width": 406,
+    "height": 539
+  },
+  "gallery-image-8": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-8.jpg",
+    "width": 995,
+    "height": 560
+  },
+  "gallery-image-9": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-9.jpg",
+    "width": 505,
+    "height": 284
+  },
+  "gallery-image-10": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-10.jpg",
+    "width": 505,
+    "height": 284
+  },
+  "gallery-image-11": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-11.jpg",
+    "width": 537,
+    "height": 302
+  },
+  "gallery-image-12": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-12.jpg",
+    "width": 316,
+    "height": 562
+  }
+}
