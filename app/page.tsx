@@ -19,7 +19,9 @@ import {
   pxToPinVh,
 } from "@/components/blog-marquee/blog-marquee";
 import { BlogMarqueeMobileStrip } from "@/components/blog-marquee/blog-marquee-mobile-strip";
-import heroImage from "@/images/hero-section-image.png";
+import { getSiteImage } from "@/utils/site-images";
+
+const heroImage = getSiteImage("hero-section-image");
 
 const INSTRUMENTS = [
   { word: "REACT", accent: true },
@@ -120,7 +122,7 @@ export default function Home() {
           transition={t(0.5, 0.3)}
         >
           <DraggablePhoto
-            src={heroImage}
+            src={heroImage.url}
             alt="Manjush R Menon"
             constraintsRef={sectionOneRef}
           />
