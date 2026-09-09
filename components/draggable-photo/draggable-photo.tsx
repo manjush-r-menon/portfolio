@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -29,13 +29,14 @@ function DragMeLabel() {
   );
 }
 
-function StaticPhoto({ src, alt }: { src: StaticImageData; alt: string }) {
+function StaticPhoto({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className={`${PHOTO_SIZE_CLASS} overflow-hidden`}>
+    <div className={`${PHOTO_SIZE_CLASS} relative overflow-hidden`}>
       <Image
         src={src}
         alt={alt}
-        className="h-full w-full object-cover"
+        fill
+        className="object-cover"
         style={{ objectPosition: "50% 38%" }}
         priority
         sizes="640px"
@@ -49,7 +50,7 @@ function InteractivePhoto({
   alt,
   constraintsRef,
 }: {
-  src: StaticImageData;
+  src: string;
   alt: string;
   constraintsRef?: RefObject<HTMLElement | null>;
 }) {
@@ -103,12 +104,13 @@ function InteractivePhoto({
         <motion.div
           animate={{ scale: isPressed ? 1.1 : 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="h-full w-full"
+          className="relative h-full w-full"
         >
           <Image
             src={src}
             alt={alt}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             style={{ objectPosition: "50% 38%" }}
             priority
             sizes="640px"
@@ -125,7 +127,7 @@ export function DraggablePhoto({
   alt,
   constraintsRef,
 }: {
-  src: StaticImageData;
+  src: string;
   alt: string;
   /** Photo can be dragged anywhere within this element's bounds. */
   constraintsRef?: RefObject<HTMLElement | null>;
