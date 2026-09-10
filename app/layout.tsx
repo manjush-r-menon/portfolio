@@ -51,7 +51,7 @@ export default function RootLayout({
           <DualCursor />
           <Providers>
             <SiteNav />
-            <main className="min-h-screen px-6 pt-28 pb-20 sm:px-10 sm:pt-36 sm:pb-16 lg:px-16 xl:px-24">
+            <main className="min-h-screen px-6 pt-24 pb-20 sm:px-10 sm:pt-36 sm:pb-16 lg:px-16 xl:px-24">
               <PageSettle>{children}</PageSettle>
             </main>
             <SiteFooter />
