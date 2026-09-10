@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import Image from "next/image";
-import galleryCenterPoster from "@/images/gallery-center-poster.svg";
+import { TaglineGalleryEntry } from "./tagline-gallery-entry";
 import { getSiteImage } from "@/utils/site-images";
 import styles from "./gallery-wall.module.css";
 
@@ -148,15 +148,11 @@ const FRAMES: Frame[] = [
 export function GalleryWall() {
   return (
     <div className={styles.container}>
-      {/* Centerpiece poster stays a plain <img>: it's an SVG (vector,
-          already 38KB), and next/image's optimizer blocks SVG sources by
-          default (dangerouslyAllowSVG) — not worth a config change for an
-          asset this size. */}
-      <img
-        className={clsx(styles.centerPoster, styles.f4)}
-        src={galleryCenterPoster.src}
-        alt="Live life with passion and purpose — typographic poster, centerpiece"
-      />
+      {/* Centerpiece poster is the hover entry point into the gallery —
+          see tagline-gallery-entry.tsx for the break-apart/reform
+          animation and why it fetches+inlines the SVG instead of using a
+          plain <img> like the frames' next/image below. */}
+      <TaglineGalleryEntry className={clsx(styles.centerPoster, styles.f4)} />
 
       {FRAMES.map((item) => (
         <div
