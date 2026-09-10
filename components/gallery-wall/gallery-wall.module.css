@@ -269,28 +269,3 @@
   width: 15%;
   height: 24.5%;
 }
-
-/* Mobile: absolute positioning doesn't reflow, so switch to a simple
-   wrapped two-column layout instead. */
-@media (max-width: 640px) {
-  .container {
-    aspect-ratio: auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 14px;
-    width: 100%;
-    height: auto;
-  }
-  /* Cancels every frame's absolute placement so they rejoin flow. */
-  .container > div,
-  .container > .centerPoster {
-    position: static;
-    top: auto;
-    left: auto;
-    width: 45%;
-    max-width: 200px;
-    height: 150px;
-  }
-}

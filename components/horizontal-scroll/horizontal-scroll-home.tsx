@@ -90,7 +90,7 @@ export function HorizontalScrollHome({
   }
 
   return (
-    <div className="flex flex-col pt-28 pb-20 sm:pt-36 sm:pb-16">
+    <div className="flex flex-col pt-24 pb-20 sm:pt-36 sm:pb-16">
       {panels.map((panel) => (
         <motion.div
           key={panel.key}

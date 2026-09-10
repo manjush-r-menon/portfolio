@@ -5,23 +5,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
-import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import buildingAWebsiteImage from "@/images/about-building-a-website.svg";
 import programmingImage from "@/images/about-programming.svg";
 import juniorSoccerImage from "@/images/about-junior-soccer.svg";
 import codeThinkingImage from "@/images/about-code-thinking.svg";
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Mobile browsers fire `resize` (and force a relayout) on ordinary address-
-// bar show/hide during normal scrolling — a mobile-only quirk desktop
-// testing never surfaces. ScrollPath is the one ScrollTrigger instance in
-// this codebase that genuinely stays active on mobile (HeroScatter/
-// PinnedReveal never construct theirs there at all — see hero-scatter.tsx/
-// pinned-reveal.tsx), so it's the one place this actually matters. Global
-// (ScrollTrigger.config is a singleton setting, not per-instance), but
-// scoped here since this is the only file that needs it.
-ScrollTrigger.config({ ignoreMobileResize: true });
 
 /**
  * Ported from /references/ (index.html + script.js + style.css): a
@@ -42,22 +31,12 @@ ScrollTrigger.config({ ignoreMobileResize: true });
  * from the rows it's meant to track through and will need re-plotting to
  * match. Not a "set once and forget" value.
  *
- * Below `lg`, rows stack into `flex-col` — a completely different, much
- * taller geometry the desktop `d` was never plotted against, so reusing it
- * there just drifts (see MOBILE-SCROLL-PLAN.md §4/§5). Rather than
- * re-plotting a second coordinate-perfect path for a layout that varies a
- * lot by content length, mobile gets a deliberately simpler, layout-
- * agnostic one: a single gentle S-curve that doesn't try to track any
- * specific row's position, just reads as a decorative thread running
- * through the stack. Its `<svg>` stretches to fill the *actual* rendered
- * height of `rowsRef` (`preserveAspectRatio="none"`, `h-full` instead of
- * desktop's aspect-ratio-driven `h-auto`) instead of relying on a
- * hand-guessed viewBox/width combination staying close enough to the real
- * content height — since mobile row height varies with copy length and
- * viewport in a way the fixed-aspect desktop version doesn't have to
- * account for, guessing would just reintroduce the same drift problem one
- * layer down. Selected via `useIsMobileScroll()`, matching every other
- * component in this pass.
+ * This component is desktop-only now (`app/about/page.tsx` mounts
+ * ScrollPathMobile below `lg` instead, the same JS-level swap GalleryWall/
+ * GalleryWallMobile use) — below `lg`, rows would stack into `flex-col`, a
+ * completely different, much taller geometry this `d` was never plotted
+ * against, so there's no mobile fallback to keep in sync here (see
+ * scroll-path-mobile.tsx).
  *
  * The 4 row illustrations are unDraw "spot illustration" SVGs (classic
  * fixed accent-purple #6c63ff + fixed neutrals style) — the accent purple
@@ -77,7 +56,6 @@ ScrollTrigger.config({ ignoreMobileResize: true });
  */
 export function ScrollPath() {
   const reduced = useReducedMotion();
-  const isMobileScroll = useIsMobileScroll();
   const rowsRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
 
@@ -159,16 +137,13 @@ export function ScrollPath() {
     },
     {
       scope: rowsRef,
-      dependencies: [reduced, isMobileScroll],
-      // `isMobileScroll` flipping swaps which `<path>` element is actually
-      // mounted (mobile vs desktop each render their own `<svg>` — see
-      // below), so `pathRef.current` and the path's own total length both
-      // change out from under a prior run. Without this, the previous
-      // run's tween/ScrollTrigger — built against the now-unmounted path —
-      // would only get reverted on full component unmount, not on this
-      // resize-driven swap (same class of bug fixed in hero-scatter.tsx/
-      // pinned-reveal.tsx last phase; see their doc comments for the full
-      // @gsap/react mechanics).
+      dependencies: [reduced],
+      // `reduced` can flip live (an OS-level prefers-reduced-motion
+      // toggle) while this stays mounted, and needs the tween/ScrollTrigger
+      // torn down and rebuilt against the new value rather than left as
+      // whatever it was on first mount (same class of bug fixed in
+      // hero-scatter.tsx/pinned-reveal.tsx; see their doc comments for the
+      // full @gsap/react mechanics).
       revertOnUpdate: true,
     }
   );
@@ -289,65 +264,27 @@ export function ScrollPath() {
           </div>
         </div>
 
-        {isMobileScroll ? (
-          <div className="pointer-events-none absolute top-[15svh] left-1/2 z-[-1] h-full w-[70%] -translate-x-1/2">
-            {/* Stretches to the wrapper's actual rendered height
-                (`preserveAspectRatio="none"`, `h-full` not `h-auto`)
-                instead of an aspect-ratio-driven auto height — see this
-                component's own doc comment for why that's the fix for the
-                desktop path's drift problem, not just a smaller viewBox. */}
-            <svg
-              viewBox="0 0 300 2600"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              className="h-full w-full"
-            >
-              {/* Path is --accent (the brighter orange); the row
-                  illustrations use #8ecae6, a soft sky blue (see their own
-                  SVG source files) — the two stay visually distinct from
-                  each other regardless of which gets which. Same color and
-                  cap style as desktop; stroke width is deliberately
-                  thinner *relative to this curve's own amplitude* than
-                  desktop's ratio would give — desktop's wide horizontal
-                  excursions (nearly the full viewBox width) can carry a
-                  thick stroke without it reading as a solid bar, but this
-                  curve's much gentler sweep can't: matching desktop's
-                  literal width-to-stroke ratio here just produced a fat
-                  rectangle that swallowed the curve shape (confirmed via
-                  screenshot). */}
-              <path
-                ref={pathRef}
-                d="M150 0C40 650 260 1950 150 2600"
-                stroke="var(--accent)"
-                strokeWidth="26"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        ) : (
-          <div className="pointer-events-none absolute top-[25svh] left-1/2 z-[-1] h-full w-[90%] -translate-x-1/2">
-            <svg
-              viewBox="0 0 1378 2760"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="xMidYMin meet"
-              className="h-auto w-full"
-            >
-              {/* Path is --accent (the brighter orange); the row
-                  illustrations use #8ecae6, a soft sky blue (see their own
-                  SVG source files) — the two stay visually distinct from each
-                  other regardless of which gets which. */}
-              <path
-                ref={pathRef}
-                d="M639.668 100C639.668 100 105.669 100 199.669 601.503C293.669 1103.01 1277.17 691.502 1277.17 1399.5C1277.17 2107.5 -155.332 1968 140.168 1438.5C435.669 909.002 1442.66 2093.5 713.168 2659.5"
-                stroke="var(--accent)"
-                strokeWidth="200"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        )}
+        <div className="pointer-events-none absolute top-[25svh] left-1/2 z-[-1] h-full w-[90%] -translate-x-1/2">
+          <svg
+            viewBox="0 0 1378 2760"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMin meet"
+            className="h-auto w-full"
+          >
+            {/* Path is --accent (the brighter orange); the row
+                illustrations use #8ecae6, a soft sky blue (see their own
+                SVG source files) — the two stay visually distinct from each
+                other regardless of which gets which. */}
+            <path
+              ref={pathRef}
+              d="M639.668 100C639.668 100 105.669 100 199.669 601.503C293.669 1103.01 1277.17 691.502 1277.17 1399.5C1277.17 2107.5 -155.332 1968 140.168 1438.5C435.669 909.002 1442.66 2093.5 713.168 2659.5"
+              stroke="var(--accent)"
+              strokeWidth="200"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
       </div>
 
       <section className="flex h-[100svh] w-full items-center justify-center overflow-hidden bg-line p-8">

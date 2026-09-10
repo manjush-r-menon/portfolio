@@ -245,8 +245,13 @@ export default function Home() {
         Most of what I build and most of what I shoot start the same way —
         paying attention to the small stuff.
       </p>
-      <div className="mt-8 overflow-hidden">
-        <span className="grotesk-display line-mask block text-[clamp(3.5rem,11vw,9.5rem)] whitespace-nowrap">
+      {/* overflow-x-hidden, not -hidden: clipping the y-axis too cut off
+          the "j"'s descender (.line-mask's fix assumes a SplitText line
+          wrapper, not this div). Below `sm` the clamp's 3.5rem floor stops
+          shrinking with the viewport, so nowrap text runs wider than the
+          screen — wrap to two lines there instead. */}
+      <div className="mt-8 overflow-x-hidden">
+        <span className="grotesk-display block text-[clamp(3.5rem,11vw,9.5rem)] whitespace-normal sm:whitespace-nowrap">
           Manjush Menon
         </span>
       </div>
@@ -292,7 +297,7 @@ export default function Home() {
   const blogMarqueeIndex = panels.findIndex((p) => p.key === "blog-marquee");
 
   return (
-    <div className="-mx-6 -mt-28 -mb-20 sm:-mx-10 sm:-mt-36 sm:-mb-16 lg:-mx-16 xl:-mx-24">
+    <div className="-mx-6 -mt-24 -mb-20 sm:-mx-10 sm:-mt-36 sm:-mb-16 lg:-mx-16 xl:-mx-24">
       <HorizontalScrollHome
         panels={panels}
         pinIndex={blogMarqueeIndex >= 0 ? blogMarqueeIndex : undefined}

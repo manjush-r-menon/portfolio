@@ -5,7 +5,6 @@ import { CONTACT_INFO } from "@/utils/contact-info";
 import { useKochiTime } from "@/utils/use-kochi-time";
 import { MagneticIcon } from "@/components/magnetic-icon/magnetic-icon";
 import { BloomPanel } from "@/components/bloom-panel/bloom-panel";
-import { ArrowIcon } from "@/components/icon-components/arrow-icon";
 import { InstagramIcon } from "@/components/icon-components/instagram-icon";
 import { LinkedInIcon } from "@/components/icon-components/linked-in-icon";
 import { GmailIcon } from "@/components/icon-components/gmail-icon";
@@ -114,10 +113,11 @@ export default function Contact() {
           Cancelling it used to be safe unconditionally because the "Or
           find me here" social-icon block always re-filled that reclaimed
           space — now that block is desktop-only (`lg:flex`, see below), so
-          mobile needs to keep <main>'s real padding or its last visible
-          content (the availability line) ends up hidden behind the fixed
-          footer instead of just missing the padding. */}
-      <div className="-mx-6 -mt-28 flex flex-col border-b border-line pt-24 sm:-mx-10 sm:-mt-36 lg:-mb-16 lg:min-h-[calc(100vh-4.5rem)] lg:-mx-16 lg:flex-row xl:-mx-24">
+          mobile needs to keep <main>'s real padding or the info rows/
+          Connect button end up sitting under the fixed footer instead of
+          just missing the padding. (The availability line is `fixed`
+          itself now — see below — so it doesn't depend on this.) */}
+      <div className="-mx-6 -mt-24 flex flex-col border-b border-line pt-24 sm:-mx-10 sm:-mt-36 lg:-mb-16 lg:min-h-[calc(100vh-4.5rem)] lg:-mx-16 lg:flex-row xl:-mx-24">
       {/* `flex-1`/full-viewport `min-h` are desktop-only (lg:) — they exist
           to make the two-column hero fill exactly one screen there. Mobile
           dropped "Get in touch" and now has noticeably less content (see
@@ -169,26 +169,6 @@ export default function Contact() {
         <div className="relative order-2 flex flex-col items-center justify-center gap-6 lg:order-1 lg:flex-1 lg:self-stretch">
           <div className="absolute inset-y-0 left-0 hidden w-px bg-line lg:block" />
           <BloomPanel />
-
-          {/* Compact text-link row, mobile only — the desktop big-icon
-              "Or find me here" row further down (components/contact-me's
-              75px icons) covers these same links there instead. */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 lg:hidden">
-            {SOCIAL_ICON_LINKS.map(({ label, href }) => (
-              <a
-                key={label}
-                href={href}
-                target={href.startsWith("http") ? "_blank" : undefined}
-                rel={
-                  href.startsWith("http") ? "noopener noreferrer" : undefined
-                }
-                className="inline-flex items-center gap-1 rounded-sm font-sans text-xs tracking-[0.08em] text-ink-dim uppercase transition-colors hover:text-accent-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
-              >
-                {label}
-                <ArrowIcon className="h-3 w-3 -rotate-45" />
-              </a>
-            ))}
-          </div>
         </div>
 
         <motion.div
@@ -232,12 +212,18 @@ export default function Contact() {
           </dl>
         </motion.div>
 
+        {/* `fixed`, not in-flow, on mobile: rotated to vertical-rl it's ~190px
+            tall, and the info rows + Connect button above already fill most
+            of a phone viewport — in flow, that pushes its lower half under
+            the fixed SiteFooter with no scroll cue that it's still there.
+            Pinned to the viewport instead, it's never at the mercy of how
+            tall the content above happens to render. */}
         <motion.div
-          className="order-3 flex w-full items-center gap-2.5 border-t border-line pt-6 lg:w-auto lg:border-t-0 lg:pt-0 lg:absolute lg:top-1/2 lg:right-6 lg:-translate-y-1/2 lg:[writing-mode:vertical-rl]"
+          className="fixed right-6 bottom-24 flex flex-col items-center gap-2.5 lg:absolute lg:top-1/2 lg:right-6 lg:bottom-auto lg:-translate-y-1/2"
           {...fadeUp(0.35)}
         >
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#4c9a5a]" />
-          <span className="font-sans text-[11px] tracking-[0.08em] text-ink-dim uppercase">
+          <span className="[writing-mode:vertical-rl] font-sans text-[11px] tracking-[0.08em] text-ink-dim uppercase">
             Available for work · 2026
           </span>
         </motion.div>

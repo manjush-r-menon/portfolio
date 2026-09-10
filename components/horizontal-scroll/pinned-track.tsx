@@ -244,7 +244,7 @@ export function PinnedTrack({
 
   return (
     <div ref={wrapperRef} style={{ height: `${totalVh}vh` }}>
-      <div className="sticky top-0 h-screen overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-16">
+      <div className="sticky top-0 h-screen overflow-hidden pt-24 pb-20 sm:pt-36 sm:pb-16">
         <motion.div
           className="flex h-full"
           style={{ x, width: `${count * 100}vw` }}
