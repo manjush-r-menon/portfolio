@@ -1,17 +1,19 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { onPreloaderDone } from "@/components/preloader/preloader-ready";
 
-function DialIcon({ reduced }: { reduced: boolean }) {
+function DialIcon({ reduced, started }: { reduced: boolean; started: boolean }) {
   return (
     <motion.svg
       viewBox="0 0 44 44"
       aria-hidden="true"
       className="h-11 w-11 stroke-ink fill-none stroke-[1.5]"
-      animate={reduced ? undefined : { rotate: 360 }}
+      animate={reduced || !started ? undefined : { rotate: 360 }}
       transition={
-        reduced
+        reduced || !started
           ? undefined
           : { duration: 8, repeat: Infinity, ease: "linear" }
       }
@@ -23,7 +25,7 @@ function DialIcon({ reduced }: { reduced: boolean }) {
   );
 }
 
-function FaceIcon({ reduced }: { reduced: boolean }) {
+function FaceIcon({ reduced, started }: { reduced: boolean; started: boolean }) {
   return (
     <svg
       viewBox="0 0 44 44"
@@ -38,10 +40,10 @@ function FaceIcon({ reduced }: { reduced: boolean }) {
         y2="25"
         strokeLinecap="round"
         className="stroke-accent"
-        animate={reduced ? undefined : { scaleY: [1, 1, 0.1, 1, 1] }}
+        animate={reduced || !started ? undefined : { scaleY: [1, 1, 0.1, 1, 1] }}
         style={{ originY: 0.5, originX: 0.5 }}
         transition={
-          reduced
+          reduced || !started
             ? undefined
             : {
                 duration: 4,
@@ -58,10 +60,10 @@ function FaceIcon({ reduced }: { reduced: boolean }) {
         y2="25"
         strokeLinecap="round"
         className="stroke-accent"
-        animate={reduced ? undefined : { scaleY: [1, 1, 0.1, 1, 1] }}
+        animate={reduced || !started ? undefined : { scaleY: [1, 1, 0.1, 1, 1] }}
         style={{ originY: 0.5, originX: 0.5 }}
         transition={
-          reduced
+          reduced || !started
             ? undefined
             : {
                 duration: 4,
@@ -77,11 +79,16 @@ function FaceIcon({ reduced }: { reduced: boolean }) {
 
 export function IdleIconPair() {
   const reduced = !!useReducedMotion();
+  // Both icons' loops are purely decorative (no state read elsewhere) and
+  // fully hidden behind the preloader curtain — see AmbientShape's doc
+  // comment for why deferring their start to onPreloaderDone is safe.
+  const [started, setStarted] = useState(false);
+  useEffect(() => onPreloaderDone(() => setStarted(true)), []);
 
   return (
     <div className="flex items-center gap-4">
-      <DialIcon reduced={reduced} />
-      <FaceIcon reduced={reduced} />
+      <DialIcon reduced={reduced} started={started} />
+      <FaceIcon reduced={reduced} started={started} />
     </div>
   );
 }

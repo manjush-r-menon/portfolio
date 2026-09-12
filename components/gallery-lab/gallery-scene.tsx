@@ -19,6 +19,7 @@ import { GalleryGrid } from "./gallery-grid";
 import { UnifiedControlBar } from "./gallery-control-bar";
 import { GalleryTopologyBackground } from "./gallery-topology-background";
 import { GalleryMiniMap } from "./gallery-minimap";
+import { GalleryBackButton } from "./gallery-back-button";
 
 // Dev-only Leva debug panel. Dynamically imported so its ~67KB gzip (leva)
 // is never fetched by a production visitor — see gallery-debug-panel.tsx.
@@ -226,6 +227,7 @@ export function GalleryScene() {
         totalItems={itemCount}
         isZoomedIn={isZoomedIn}
       />
+      <GalleryBackButton />
       <UnifiedControlBar
         sections={PHOTO_SECTIONS.map((s) => ({ id: s.id, title: s.title }))}
         currentSectionIndex={activeSectionIdx}

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      # URLs, the server-start command, and run count all live in
+      # .lighthouserc.json (an @lhci/cli config, not action inputs).
+      # Informational for now — scores show up on the PR check and in the
+      # uploaded report, but nothing fails the build on a low score yet.
+      # Tighten this into assertions once there's a baseline worth holding
+      # the site to.
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./.lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import { gsap } from "@/utils/gsap-init";
 
 const LERP = 0.18;
 
@@ -25,7 +26,6 @@ export function DualCursor() {
     let mouseY = window.innerHeight / 2;
     let ringX = mouseX;
     let ringY = mouseY;
-    let raf = 0;
 
     function setDotPosition(x: number, y: number) {
       if (dotRef.current) {
@@ -67,14 +67,23 @@ export function DualCursor() {
     setDotPosition(mouseX, mouseY);
     setRingPosition(ringX, ringY);
 
+    // Registered on GSAP's shared ticker instead of its own
+    // requestAnimationFrame loop — GSAP is already loaded and its ticker
+    // already running on every page (the preloader alone guarantees that,
+    // see components/preloader/preloader.tsx), so this removes one
+    // independent rAF registration site-wide for free rather than trading
+    // it for a new one. The ticker fires this callback once per animation
+    // frame by default, same cadence as raw rAF, and `tick` doesn't use
+    // the (time/deltaTime/frame) args GSAP passes it — it's a fixed
+    // per-frame lerp step either way, so the swap doesn't change how often
+    // or how this runs.
+    function tick() {
+      ringX += (mouseX - ringX) * LERP;
+      ringY += (mouseY - ringY) * LERP;
+      setRingPosition(ringX, ringY);
+    }
     if (!reducedMotion) {
-      const tick = () => {
-        ringX += (mouseX - ringX) * LERP;
-        ringY += (mouseY - ringY) * LERP;
-        setRingPosition(ringX, ringY);
-        raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
+      gsap.ticker.add(tick);
     }
 
     document.documentElement.classList.add("cursor-hidden");
@@ -82,7 +91,7 @@ export function DualCursor() {
     return () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseover", onOver);
-      if (raf) cancelAnimationFrame(raf);
+      gsap.ticker.remove(tick);
       document.documentElement.classList.remove("cursor-hidden");
     };
   }, []);

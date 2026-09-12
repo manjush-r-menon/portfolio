@@ -598,7 +598,16 @@ export function BloomPanel({
                     type="button"
                     onClick={toggle}
                     aria-label="Close contact form"
-                    className="-mt-1 -mr-1 rounded-sm p-1 text-bg/60 transition-colors hover:text-bg focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                    // Negative margin cancels the added padding exactly
+                    // (-12px + 12px = 0), so the icon stays visually flush
+                    // in the same spot while the actual tap target grows to
+                    // ~44px — this panel covers nearly the whole viewport
+                    // on mobile, leaving almost no backdrop to tap outside
+                    // of it to close, so this button is the one reliable
+                    // way out there and a small icon-hugging hit area
+                    // (the previous p-1 was ~28px) was too easy to miss/
+                    // mistap.
+                    className="-mt-3 -mr-3 rounded-sm p-3 text-bg/60 transition-colors hover:text-bg focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                   >
                     <svg
                       viewBox="0 0 24 24"

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
+import { bebasNeue } from "@/utils/fonts";
 import styles from "./error-cube.module.css";
 
 export type MarqueeSegment = {
@@ -65,7 +66,7 @@ export function ErrorCube({ phrases }: { phrases: MarqueeSegment[] }) {
   }, []);
 
   return (
-    <div className={styles.wrapper} aria-hidden="true">
+    <div className={`${styles.wrapper} ${bebasNeue.variable}`} aria-hidden="true">
       <div className={styles.content}>
         <div className={styles.containerFull}>
           <div className={`${styles.hue} ${styles.animated}`} />

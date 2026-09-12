@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { onPreloaderDone } from "@/components/preloader/preloader-ready";
 
 type AmbientShapeProps = {
   variant?: "neutral" | "accent";
@@ -21,6 +23,15 @@ export function AmbientShape({
   const reduced = useReducedMotion();
   const color = variant === "accent" ? "var(--accent)" : "var(--line-strong)";
   const resolvedSize = size ?? (bold ? 640 : 280);
+  // This ambient drift is purely decorative (aria-hidden, no state anyone
+  // else reads) and fully invisible behind the preloader curtain — an
+  // infinite framer-motion loop still runs on every animation frame
+  // whether or not it's visible, so starting it only once the curtain is
+  // gone removes that main-thread work during the curtain with no visible
+  // difference (the loop has no meaningful "start phase" a viewer could
+  // ever have seen either way).
+  const [started, setStarted] = useState(false);
+  useEffect(() => onPreloaderDone(() => setStarted(true)), []);
 
   return (
     <motion.div
@@ -33,9 +44,13 @@ export function AmbientShape({
         opacity: bold ? 0.5 : variant === "accent" ? 0.14 : 0.16,
         filter: bold ? "blur(140px)" : "blur(80px)",
       }}
-      animate={reduced ? undefined : { x: [0, 14, -10, 0], y: [0, -12, 10, 0] }}
+      animate={
+        reduced || !started
+          ? undefined
+          : { x: [0, 14, -10, 0], y: [0, -12, 10, 0] }
+      }
       transition={
-        reduced
+        reduced || !started
           ? undefined
           : { duration: 16, repeat: Infinity, ease: "easeInOut" }
       }

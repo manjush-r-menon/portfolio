@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# bundle analyzer / lighthouse CI local output
+.lighthouseci/
+
 # production
 /build
 

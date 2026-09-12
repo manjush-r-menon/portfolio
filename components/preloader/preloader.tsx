@@ -17,6 +17,22 @@ const WORDS = [
 
 const SESSION_KEY = "preloader-shown";
 
+// Read (and immediately mark) the session flag once here, at module scope
+// — not inside the effect below. React StrictMode's dev-only mount ->
+// cleanup -> mount replay runs the component's effect body twice for one
+// real page load; reading *and* writing sessionStorage inside that effect
+// meant the first (StrictMode-only) invocation's write made the second
+// invocation see "already shown" and skip the entire sequence, on every
+// dev-mode load. Module top-level code only ever executes once per real
+// page load (module evaluation isn't replayed by StrictMode), so deciding
+// it here instead is immune to that replay. `typeof window` guards this
+// against also running during SSR, where sessionStorage doesn't exist.
+const alreadyShownThisSession =
+  typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1";
+if (typeof window !== "undefined") {
+  sessionStorage.setItem(SESSION_KEY, "1");
+}
+
 export function Preloader({ children }: { children: React.ReactNode }) {
   const [showOverlay, setShowOverlay] = useState(true);
 
@@ -27,20 +43,17 @@ export function Preloader({ children }: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const alreadyShown = sessionStorage.getItem(SESSION_KEY) === "1";
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    if (alreadyShown || reduced) {
+    if (alreadyShownThisSession || reduced) {
       setShowOverlay(false);
       markPreloaderDone();
       gsap.set(contentRef.current, { opacity: 1 });
-      sessionStorage.setItem(SESSION_KEY, "1");
       return;
     }
 
-    sessionStorage.setItem(SESSION_KEY, "1");
     document.body.style.overflow = "hidden";
 
     const dimension = { width: window.innerWidth, height: window.innerHeight };
@@ -71,10 +84,16 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
     gsap.to(wordRef.current, { opacity: 0.75, duration: 1, delay: 0.2 });
 
+    // Kept as a mutable ref (not a plain local) so skip() below can kill
+    // whichever word-cycle step is currently pending — cycleWords only
+    // ever has one delayedCall in flight at a time, so overwriting this
+    // on each step is enough to always be able to cancel the live one.
+    let pendingCycleCall: gsap.core.Tween | null = null;
+
     function cycleWords() {
       if (index === WORDS.length - 1) return;
       const delay = index === 0 ? 1 : 0.15;
-      gsap.delayedCall(delay, () => {
+      pendingCycleCall = gsap.delayedCall(delay, () => {
         index += 1;
         if (wordTextRef.current) wordTextRef.current.textContent = WORDS[index];
         cycleWords();
@@ -85,7 +104,17 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
     const totalDelay = WORDS.length * 0.15 + 1.5;
 
-    const revealCall = gsap.delayedCall(totalDelay, () => {
+    // Extracted out of the delayedCall below so a skip gesture (see
+    // skip()) can trigger the exact same reveal timeline on demand,
+    // instead of only ever running once totalDelay naturally elapses.
+    // Guarded so the timeline can never be built twice — a skip
+    // triggered a tick before the natural delayedCall would otherwise
+    // fire could race it.
+    let revealed = false;
+    function triggerReveal() {
+      if (revealed) return;
+      revealed = true;
+
       const { initialPath, targetPath } = getPaths();
 
       const tl = gsap.timeline({
@@ -140,7 +169,24 @@ export function Preloader({ children }: { children: React.ReactNode }) {
       // already visible and settled while the hero text sat blank a beat
       // longer, reading as a lag right before the reveal.
       tl.call(() => markPreloaderDone(), [], 0.5);
-    });
+    }
+
+    const revealCall = gsap.delayedCall(totalDelay, triggerReveal);
+
+    // Skip: a click/tap on the overlay, or any keypress, jumps straight to
+    // the same reveal timeline above instead of waiting out totalDelay.
+    // Only cancels the *waiting* — the curtain lift/wipe/content-fade
+    // itself is untouched, so it plays identically to the default path,
+    // just triggered early. Does nothing for anyone who never interacts:
+    // the default timed sequence is unchanged.
+    function skip() {
+      pendingCycleCall?.kill();
+      revealCall.kill();
+      triggerReveal();
+    }
+
+    window.addEventListener("keydown", skip);
+    preloaderRef.current?.addEventListener("click", skip);
 
     const wordEl = wordRef.current;
     const preloaderEl = preloaderRef.current;
@@ -149,6 +195,9 @@ export function Preloader({ children }: { children: React.ReactNode }) {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("keydown", skip);
+      preloaderEl?.removeEventListener("click", skip);
+      pendingCycleCall?.kill();
       revealCall.kill();
       gsap.killTweensOf([wordEl, preloaderEl, pathEl, contentEl]);
       document.body.style.overflow = "";
