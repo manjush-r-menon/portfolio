@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { GalleryWall } from "@/components/gallery-wall/gallery-wall";
 import { GalleryWallMobile } from "@/components/gallery-wall/gallery-wall-mobile";
 import { ScrollPath } from "@/components/scroll-path/scroll-path";

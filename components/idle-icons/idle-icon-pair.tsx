@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 
 function DialIcon({ reduced }: { reduced: boolean }) {
   return (

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { CONTACT_INFO } from "@/utils/contact-info";
 import { useKochiTime } from "@/utils/use-kochi-time";
 import { MagneticIcon } from "@/components/magnetic-icon/magnetic-icon";

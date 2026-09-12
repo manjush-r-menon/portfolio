@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { TextReveal } from "@/components/text-reveal/text-reveal";
 import { IndexLabel } from "@/components/index-label/index-label";
 import { IdleIconPair } from "@/components/idle-icons/idle-icon-pair";

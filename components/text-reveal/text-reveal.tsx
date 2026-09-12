@@ -4,7 +4,7 @@ import { cloneElement, isValidElement, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { onPreloaderDone } from "@/components/preloader/preloader-ready";
 
 gsap.registerPlugin(SplitText);

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import clsx from "clsx";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 
 type AmbientShapeProps = {
   variant?: "neutral" | "accent";

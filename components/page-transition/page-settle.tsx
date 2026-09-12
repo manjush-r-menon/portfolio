@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 
 export function PageSettle({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

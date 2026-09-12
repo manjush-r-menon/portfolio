@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useTransitionCurtain } from "@/components/page-transition/transition-context";

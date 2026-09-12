@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { TransitionContext } from "./transition-context";
 import { PAGE_NAMES } from "@/utils/site-links";
 

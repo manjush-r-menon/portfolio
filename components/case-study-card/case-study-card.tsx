@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { IndexLabel } from "@/components/index-label/index-label";
 import { ArrowIcon } from "@/components/icon-components/arrow-icon";
 import { TagPill } from "@/components/tag-pill/tag-pill";
