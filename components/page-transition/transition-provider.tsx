@@ -27,6 +27,10 @@ export function TransitionProvider({
   const lengthsRef = useRef<number[]>([0, 0]);
   const [announcement, setAnnouncement] = useState("");
   const reduced = useReducedMotion();
+  // Tracks whichever timeline (leave, then enter once leave completes) is
+  // currently in flight, so a repeat click mid-transition can kill it
+  // instead of leaving two timelines fighting over the same paths.
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   // getTotalLength() needs the path actually laid out in the DOM, so this
   // can only run client-side, after mount.
@@ -53,6 +57,8 @@ export function TransitionProvider({
         return;
       }
 
+      timelineRef.current?.kill();
+
       const lengths = lengthsRef.current;
 
       const leave = gsap.timeline({
@@ -60,6 +66,7 @@ export function TransitionProvider({
           navigate();
 
           const enter = gsap.timeline();
+          timelineRef.current = enter;
           paths.forEach((path, i) => {
             enter.to(
               path,
@@ -77,6 +84,7 @@ export function TransitionProvider({
           });
         },
       });
+      timelineRef.current = leave;
 
       paths.forEach((path) => {
         leave.to(
