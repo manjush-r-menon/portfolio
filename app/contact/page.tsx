@@ -133,7 +133,7 @@ export default function Contact() {
             <div key={word.text} className="flex items-end gap-10">
               <motion.span
                 className="ghost-word-hero"
-                style={{ color: "#a8a496", marginLeft: `${word.indent}em` }}
+                style={{ color: "var(--ghost-word)", marginLeft: `${word.indent}em` }}
                 {...fadeUp(index * 0.06)}
               >
                 {word.text}
@@ -144,7 +144,7 @@ export default function Contact() {
             <motion.span
               key={word.text}
               className="ghost-word-hero"
-              style={{ color: "#a8a496", marginLeft: `${word.indent}em` }}
+              style={{ color: "var(--ghost-word)", marginLeft: `${word.indent}em` }}
               {...fadeUp(index * 0.06)}
             >
               {word.text}

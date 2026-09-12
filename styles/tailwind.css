@@ -11,7 +11,11 @@
   --ink: #141412; /* primary text, near-black */
   --ink-dim: #737169; /* secondary text, muted labels — darkened from spec's #8c8a80 to clear WCAG AA at 12–13px (4.64:1 vs 3.29:1) */
   --line: #e6e3d8; /* hairline dividers */
-  --line-strong: #cfccbe; /* ghost-word color, stronger dividers */
+  --line-strong: #cfccbe; /* stronger dividers */
+  --ghost-word: #8f8b80; /* large decorative word-stack text (Contact hero)
+     — same warm-gray family as --line-strong, but darkened enough to clear
+     WCAG AA's 3:1 floor for large text (3.23:1 vs --bg; --line-strong itself
+     only manages 1.53:1 here) */
   --accent: #d1591f; /* primary accent — burnt orange */
   --accent-ink: #5c260c; /* darker accent for text-on-light use */
 
