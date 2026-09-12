@@ -6,6 +6,7 @@ import emailjs from "@emailjs/browser";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { FaceNotification } from "./face-notification/face-notification";
 import {
   EMAIL_MAX_LENGTH,
   EMAIL_REGEX,
@@ -15,6 +16,16 @@ import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
 } from "@/utils/validation";
+
+// Deliberate minimum time the sending state stays on screen, so a fast
+// network response never reads as a flicker — see handleSubmit below.
+const SENDING_MIN_DISPLAY_MS = 900;
+
+function waitForMinDisplay(startedAt: number, minMs: number) {
+  const elapsed = Date.now() - startedAt;
+  const remaining = Math.max(0, minMs - elapsed);
+  return new Promise((resolve) => setTimeout(resolve, remaining));
+}
 
 /**
  * Ported from /references/ (index.html + script.js + style.css) — a
@@ -60,9 +71,10 @@ import {
  * Email delivery reuses the exact emailjs.sendForm(...) call already
  * wired in components/contact-me/contact-me-section.tsx (same env vars:
  * NEXT_PUBLIC_EMAILJS_SERVICE_ID/TEMPLATE_ID/PUBLIC_KEY) rather than a
- * new API route. That call itself, the success/error message UI, and the
- * disabled={sending} submit guard are all deliberately untouched here —
- * see the conversation this was scoped in.
+ * new API route. Once a submit is in flight, the face character (see
+ * ./face-notification/face-notification.tsx) replaces the name/email/
+ * message fields — there's no separate "submit disabled while sending"
+ * state to manage since the button itself is gone in that mode.
  *
  * Validation/spam-hardening (added after an audit of the original build):
  * per-field validators run both on blur and on submit; every field is
@@ -175,6 +187,7 @@ export function BloomPanel({
   const fieldRefs = useRef<(HTMLDivElement | null)[]>([]);
   const footerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -346,6 +359,19 @@ export function BloomPanel({
     }
   );
 
+  // Fires ~400ms after the face's mouth swaps to happy/sad (see the
+  // FaceNotification's onOutcomeComplete below) — the result text
+  // ("Message sent"/"didn't send") fades/slides in only then, rather than
+  // appearing instantly alongside the expression change.
+  const revealResult = contextSafe(() => {
+    if (!resultRef.current) return;
+    gsap.fromTo(
+      resultRef.current,
+      { opacity: 0, y: reduced ? 0 : 20 },
+      { opacity: 1, y: 0, duration: reduced ? 0 : 0.5, ease: "back.out(1.5)" }
+    );
+  });
+
   const toggle = contextSafe(() => {
     setIsOpen((open) => {
       const next = !open;
@@ -389,7 +415,7 @@ export function BloomPanel({
     setMessageLength(e.target.value.length);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
 
@@ -447,34 +473,49 @@ export function BloomPanel({
     setSending(true);
     setStatus(null);
 
-    emailjs
-      .sendForm(
+    // The sending state (bounce + neutral mouth) starts the moment
+    // `sending` flips true (see the FaceNotification mount below) —
+    // immediately, not after this delay. SENDING_MIN_DISPLAY_MS is a
+    // *minimum display* floor under that state, not a startup delay: a
+    // fast response still waits this long before the outcome plays, so it
+    // never reads as a flicker; a slow response plays the outcome the
+    // moment it resolves, with no extra wait stacked on top.
+    const start = Date.now();
+    try {
+      await emailjs.sendForm(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         formRef.current,
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-      )
-      .then(
-        () => {
-          setStatus({
-            type: "success",
-            message: "Message sent — thanks, I'll get back to you soon.",
-          });
-          formRef.current?.reset();
-          setErrors({});
-          setMessageLength(0);
-        },
-        (error) => {
-          console.error(error);
-          setStatus({
-            type: "error",
-            message:
-              "Something went wrong sending that. Try again, or email me directly.",
-          });
-        }
-      )
-      .finally(() => setSending(false));
+      );
+      await waitForMinDisplay(start, SENDING_MIN_DISPLAY_MS);
+      setStatus({
+        type: "success",
+        message: "Message sent — thanks, I'll get back to you soon.",
+      });
+      formRef.current?.reset();
+      setErrors({});
+      setMessageLength(0);
+    } catch (error) {
+      console.error(error);
+      await waitForMinDisplay(start, SENDING_MIN_DISPLAY_MS);
+      setStatus({
+        type: "error",
+        message:
+          "Something went wrong sending that. Try again, or email me directly.",
+      });
+    } finally {
+      setSending(false);
+    }
   };
+
+  // Sending/result mode: once a submit is in flight (or resolved), the
+  // face character replaces the name/email/message fields for the rest of
+  // this panel-open session — there's nothing left to edit.
+  const showIllustration = sending || status !== null;
+  // Used by both the success ("Go back") and failure ("Try again") result
+  // buttons — same reset either way, back to the empty form.
+  const backToForm = () => setStatus(null);
 
   return (
     <>
@@ -603,162 +644,195 @@ export function BloomPanel({
                     />
                   </div>
 
-                  <div className="flex flex-col gap-6">
-                    <div
-                      ref={(el) => {
-                        fieldRefs.current[0] = el;
-                      }}
-                      className="overflow-hidden [perspective:300px]"
-                    >
-                      <label
-                        htmlFor={nameFieldId}
-                        className={DARK_LABEL_CLASSES}
+                  {showIllustration ? (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-6 py-4">
+                      <FaceNotification
+                        outcome={
+                          status
+                            ? status.type === "success"
+                              ? "success"
+                              : "failure"
+                            : null
+                        }
+                        onOutcomeComplete={revealResult}
+                      />
+                      <div
+                        ref={resultRef}
+                        aria-live="polite"
+                        className="w-full text-center"
+                        style={{ opacity: 0 }}
                       >
-                        Name
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          ref={nameInputRef}
-                          id={nameFieldId}
-                          name="name"
-                          type="text"
-                          autoComplete="name"
-                          maxLength={NAME_MAX_LENGTH}
-                          onBlur={handleNameBlur}
-                          aria-invalid={!!errors.name}
-                          aria-describedby={
-                            errors.name ? nameErrorId : undefined
-                          }
-                          className={`${DARK_INPUT_BASE} ${errors.name ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
-                        />
-                        {/* Fixed-height slot regardless of whether an error
-                            is shown: an error appearing here must not shift
-                            anything below it (including the submit button)
-                            — a shift landing between a click's mousedown and
-                            mouseup can make the click miss the button
-                            entirely, since mouseup hit-tests whatever is now
-                            at the original screen coordinates. */}
-                        <div className="mt-1.5 min-h-[1.5rem]">
-                          {errors.name && (
+                        {status && (
+                          <>
                             <p
-                              id={nameErrorId}
-                              className="font-sans text-xs text-red-400"
+                              className={`font-sans text-sm font-bold ${
+                                status.type === "success"
+                                  ? "text-[#7fc98c]"
+                                  : "text-red-400"
+                              }`}
                             >
-                              {errors.name}
+                              {status.message}
                             </p>
-                          )}
-                        </div>
+                            <button
+                              type="button"
+                              onClick={backToForm}
+                              className="mt-4 inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 font-sans text-sm font-semibold text-ink transition-[filter] hover:brightness-110 focus-visible:ring-2 focus-visible:ring-bg focus-visible:outline-none"
+                            >
+                              {status.type === "success"
+                                ? "Go back"
+                                : "Try again"}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
-
-                    <div
-                      ref={(el) => {
-                        fieldRefs.current[1] = el;
-                      }}
-                      className="overflow-hidden [perspective:300px]"
-                    >
-                      <label
-                        htmlFor={emailFieldId}
-                        className={DARK_LABEL_CLASSES}
-                      >
-                        Email
-                      </label>
-                      <div className="mt-2">
-                        <input
-                          ref={emailInputRef}
-                          id={emailFieldId}
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          maxLength={EMAIL_MAX_LENGTH}
-                          onBlur={handleEmailBlur}
-                          aria-invalid={!!errors.email}
-                          aria-describedby={
-                            errors.email ? emailErrorId : undefined
-                          }
-                          className={`${DARK_INPUT_BASE} ${errors.email ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
-                        />
-                        <div className="mt-1.5 min-h-[1.5rem]">
-                          {errors.email && (
-                            <p
-                              id={emailErrorId}
-                              className="font-sans text-xs text-red-400"
-                            >
-                              {errors.email}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      ref={(el) => {
-                        fieldRefs.current[2] = el;
-                      }}
-                      className="overflow-hidden [perspective:300px]"
-                    >
-                      <div className="flex items-baseline justify-between gap-2">
-                        <label
-                          htmlFor={messageFieldId}
-                          className={DARK_LABEL_CLASSES}
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-6">
+                        <div
+                          ref={(el) => {
+                            fieldRefs.current[0] = el;
+                          }}
+                          className="overflow-hidden [perspective:300px]"
                         >
-                          Message
-                        </label>
-                        <span className="font-sans text-[11px] text-bg/40">
-                          {messageLength}/{MESSAGE_MAX_LENGTH}
-                        </span>
-                      </div>
-                      <div className="mt-2">
-                        <textarea
-                          ref={messageInputRef}
-                          id={messageFieldId}
-                          name="message"
-                          rows={3}
-                          maxLength={MESSAGE_MAX_LENGTH}
-                          onBlur={handleMessageBlur}
-                          onChange={handleMessageChange}
-                          aria-invalid={!!errors.message}
-                          aria-describedby={
-                            errors.message ? messageErrorId : undefined
-                          }
-                          className={`${DARK_INPUT_BASE} resize-none ${errors.message ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
-                        />
-                        <div className="mt-1.5 min-h-[1.5rem]">
-                          {errors.message && (
-                            <p
-                              id={messageErrorId}
-                              className="font-sans text-xs text-red-400"
+                          <label
+                            htmlFor={nameFieldId}
+                            className={DARK_LABEL_CLASSES}
+                          >
+                            Name
+                          </label>
+                          <div className="mt-2">
+                            <input
+                              ref={nameInputRef}
+                              id={nameFieldId}
+                              name="name"
+                              type="text"
+                              autoComplete="name"
+                              maxLength={NAME_MAX_LENGTH}
+                              onBlur={handleNameBlur}
+                              aria-invalid={!!errors.name}
+                              aria-describedby={
+                                errors.name ? nameErrorId : undefined
+                              }
+                              className={`${DARK_INPUT_BASE} ${errors.name ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
+                            />
+                            {/* Fixed-height slot regardless of whether an
+                                error is shown: an error appearing here must
+                                not shift anything below it (including the
+                                submit button) — a shift landing between a
+                                click's mousedown and mouseup can make the
+                                click miss the button entirely, since mouseup
+                                hit-tests whatever is now at the original
+                                screen coordinates. */}
+                            <div className="mt-1.5 min-h-[1.5rem]">
+                              {errors.name && (
+                                <p
+                                  id={nameErrorId}
+                                  className="font-sans text-xs text-red-400"
+                                >
+                                  {errors.name}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          ref={(el) => {
+                            fieldRefs.current[1] = el;
+                          }}
+                          className="overflow-hidden [perspective:300px]"
+                        >
+                          <label
+                            htmlFor={emailFieldId}
+                            className={DARK_LABEL_CLASSES}
+                          >
+                            Email
+                          </label>
+                          <div className="mt-2">
+                            <input
+                              ref={emailInputRef}
+                              id={emailFieldId}
+                              name="email"
+                              type="email"
+                              autoComplete="email"
+                              maxLength={EMAIL_MAX_LENGTH}
+                              onBlur={handleEmailBlur}
+                              aria-invalid={!!errors.email}
+                              aria-describedby={
+                                errors.email ? emailErrorId : undefined
+                              }
+                              className={`${DARK_INPUT_BASE} ${errors.email ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
+                            />
+                            <div className="mt-1.5 min-h-[1.5rem]">
+                              {errors.email && (
+                                <p
+                                  id={emailErrorId}
+                                  className="font-sans text-xs text-red-400"
+                                >
+                                  {errors.email}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          ref={(el) => {
+                            fieldRefs.current[2] = el;
+                          }}
+                          className="overflow-hidden [perspective:300px]"
+                        >
+                          <div className="flex items-baseline justify-between gap-2">
+                            <label
+                              htmlFor={messageFieldId}
+                              className={DARK_LABEL_CLASSES}
                             >
-                              {errors.message}
-                            </p>
-                          )}
+                              Message
+                            </label>
+                            <span className="font-sans text-[11px] text-bg/40">
+                              {messageLength}/{MESSAGE_MAX_LENGTH}
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <textarea
+                              ref={messageInputRef}
+                              id={messageFieldId}
+                              name="message"
+                              rows={3}
+                              maxLength={MESSAGE_MAX_LENGTH}
+                              onBlur={handleMessageBlur}
+                              onChange={handleMessageChange}
+                              aria-invalid={!!errors.message}
+                              aria-describedby={
+                                errors.message ? messageErrorId : undefined
+                              }
+                              className={`${DARK_INPUT_BASE} resize-none ${errors.message ? DARK_INPUT_ERROR : DARK_INPUT_NORMAL}`}
+                            />
+                            <div className="mt-1.5 min-h-[1.5rem]">
+                              {errors.message && (
+                                <p
+                                  id={messageErrorId}
+                                  className="font-sans text-xs text-red-400"
+                                >
+                                  {errors.message}
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div ref={footerRef} className="mt-10">
-                    <button
-                      type="submit"
-                      disabled={sending}
-                      className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 font-sans text-sm font-medium text-ink transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-bg focus-visible:outline-none"
-                    >
-                      {sending ? "Sending…" : "Send message"}
-                    </button>
-                    <div aria-live="polite">
-                      {status && (
-                        <p
-                          className={`mt-3 font-sans text-xs ${
-                            status.type === "success"
-                              ? "text-[#7fc98c]"
-                              : "text-red-400"
-                          }`}
+                      <div ref={footerRef} className="mt-10">
+                        <button
+                          type="submit"
+                          className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 font-sans text-sm font-medium text-ink transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-bg focus-visible:outline-none"
                         >
-                          {status.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                          Send message
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </form>
               </div>
             </div>

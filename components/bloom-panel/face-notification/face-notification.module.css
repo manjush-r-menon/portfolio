@@ -1,0 +1,275 @@
+/* Every shape here is plain CSS (border-radius/border) — no image assets.
+   Colors reuse the site's existing --bg/--ink tokens (see styles/tailwind.css)
+   rather than the hardcoded hexes from the reference build: the panel this
+   sits inside is already `bg-ink`, and --bg (cream) already doubles as
+   "light text/fill on the dark panel" elsewhere in bloom-panel.tsx (see
+   DARK_LABEL_CLASSES's `text-bg/60`). */
+
+.characterWrap {
+  position: relative;
+  width: 200px;
+  height: 140px;
+}
+
+.shadow {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 64px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  filter: blur(1px);
+}
+
+.face {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 88px;
+  height: 88px;
+  background: var(--bg);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--ink);
+  border-radius: 50%;
+  top: 38px;
+}
+.eyeLeft {
+  left: 26px;
+}
+.eyeRight {
+  left: 55px;
+}
+
+.mouth {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.mouthNeutral {
+  width: 16px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 1px;
+}
+.mouthHappy {
+  width: 20px;
+  height: 10px;
+  border: 2.5px solid var(--ink);
+  border-top: none;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 0 0 20px 20px;
+}
+.mouthSad {
+  width: 20px;
+  height: 10px;
+  border: 2.5px solid var(--ink);
+  border-bottom: none;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 20px 20px 0 0;
+  top: 58px;
+}
+
+/*
+  bounce+scale: continuous idle motion (also used, neutral-mouthed, for the
+  sending state — there's no separate loading animation, this is reused).
+  roll+move: continuous failure motion. Both loop indefinitely while that
+  state is showing.
+
+  IMPORTANT: .face and .shadow are horizontally centered via
+  `transform: translateX(-50%)` as their resting style. A CSS animation's
+  `transform` value fully REPLACES the element's own — it does not merge —
+  so every keyframe stop below re-includes `translateX(-50%)` (or the
+  equivalent inside a calc()), otherwise the element snaps off-center for
+  the animation's duration.
+
+  roll/move use 21 stops (every 5%) sampling an actual sine wave
+  (amplitude * sin(2*pi*t)) rather than 3-5 stops with `ease-in-out`. With
+  few stops and ease-in-out applied globally, the browser eases in AND out
+  of every stop - decelerating to near-zero speed at the center on every
+  pass, which reads as a stutter/pause exactly where the swing should be
+  fastest. Sampling the sine curve directly and using `linear` timing
+  reproduces smooth continuous motion instead - the sine shape itself
+  already encodes correct accel/decel (fastest through center, slowest at
+  the extremes). bounce/scale keep `ease-in` and don't need this: easing to
+  near-zero velocity at the TOP of a bounce is physically correct there.
+
+  prefers-reduced-motion is handled globally (styles/tailwind.css forces
+  animation-duration: 0.01ms / iteration-count: 1 on every element), so no
+  extra media query is needed here.
+*/
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+@keyframes scale {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(0.9);
+  }
+}
+@keyframes roll {
+  0% {
+    transform: translateX(calc(-50% + 0px)) rotate(0deg);
+  }
+  5% {
+    transform: translateX(calc(-50% + 15.5px)) rotate(51.9deg);
+  }
+  10% {
+    transform: translateX(calc(-50% + 29.4px)) rotate(98.7deg);
+  }
+  15% {
+    transform: translateX(calc(-50% + 40.5px)) rotate(135.9deg);
+  }
+  20% {
+    transform: translateX(calc(-50% + 47.6px)) rotate(159.8deg);
+  }
+  25% {
+    transform: translateX(calc(-50% + 50px)) rotate(168deg);
+  }
+  30% {
+    transform: translateX(calc(-50% + 47.6px)) rotate(159.8deg);
+  }
+  35% {
+    transform: translateX(calc(-50% + 40.5px)) rotate(135.9deg);
+  }
+  40% {
+    transform: translateX(calc(-50% + 29.4px)) rotate(98.7deg);
+  }
+  45% {
+    transform: translateX(calc(-50% + 15.5px)) rotate(51.9deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  55% {
+    transform: translateX(calc(-50% - 15.5px)) rotate(-51.9deg);
+  }
+  60% {
+    transform: translateX(calc(-50% - 29.4px)) rotate(-98.7deg);
+  }
+  65% {
+    transform: translateX(calc(-50% - 40.5px)) rotate(-135.9deg);
+  }
+  70% {
+    transform: translateX(calc(-50% - 47.6px)) rotate(-159.8deg);
+  }
+  75% {
+    transform: translateX(calc(-50% - 50px)) rotate(-168deg);
+  }
+  80% {
+    transform: translateX(calc(-50% - 47.6px)) rotate(-159.8deg);
+  }
+  85% {
+    transform: translateX(calc(-50% - 40.5px)) rotate(-135.9deg);
+  }
+  90% {
+    transform: translateX(calc(-50% - 29.4px)) rotate(-98.7deg);
+  }
+  95% {
+    transform: translateX(calc(-50% - 15.5px)) rotate(-51.9deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+}
+@keyframes move {
+  0% {
+    transform: translateX(-50%) translateX(0px);
+  }
+  5% {
+    transform: translateX(-50%) translateX(15.5px);
+  }
+  10% {
+    transform: translateX(-50%) translateX(29.4px);
+  }
+  15% {
+    transform: translateX(-50%) translateX(40.5px);
+  }
+  20% {
+    transform: translateX(-50%) translateX(47.6px);
+  }
+  25% {
+    transform: translateX(-50%) translateX(50px);
+  }
+  30% {
+    transform: translateX(-50%) translateX(47.6px);
+  }
+  35% {
+    transform: translateX(-50%) translateX(40.5px);
+  }
+  40% {
+    transform: translateX(-50%) translateX(29.4px);
+  }
+  45% {
+    transform: translateX(-50%) translateX(15.5px);
+  }
+  50% {
+    transform: translateX(-50%) translateX(0px);
+  }
+  55% {
+    transform: translateX(-50%) translateX(-15.5px);
+  }
+  60% {
+    transform: translateX(-50%) translateX(-29.4px);
+  }
+  65% {
+    transform: translateX(-50%) translateX(-40.5px);
+  }
+  70% {
+    transform: translateX(-50%) translateX(-47.6px);
+  }
+  75% {
+    transform: translateX(-50%) translateX(-50px);
+  }
+  80% {
+    transform: translateX(-50%) translateX(-47.6px);
+  }
+  85% {
+    transform: translateX(-50%) translateX(-40.5px);
+  }
+  90% {
+    transform: translateX(-50%) translateX(-29.4px);
+  }
+  95% {
+    transform: translateX(-50%) translateX(-15.5px);
+  }
+  100% {
+    transform: translateX(-50%) translateX(0px);
+  }
+}
+
+.face.animBounce {
+  animation: bounce 1s ease-in infinite;
+}
+.shadow.animScale {
+  animation: scale 1s ease-in infinite;
+}
+.face.animRoll {
+  animation: roll 3s linear infinite;
+}
+.shadow.animMove {
+  animation: move 3s linear infinite;
+}
