@@ -1,15 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/utils/gsap-init";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import { CARD_REVEAL_CATEGORIES } from "@/data/card-reveal-data";
 import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const smoothStep = (p: number) => p * p * (3 - 2 * p);
 

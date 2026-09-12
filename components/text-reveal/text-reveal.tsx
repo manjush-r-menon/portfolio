@@ -1,13 +1,10 @@
 "use client";
 
 import { cloneElement, isValidElement, useEffect, useRef } from "react";
-import gsap from "gsap";
-import { SplitText } from "gsap/SplitText";
+import { gsap, SplitText } from "@/utils/gsap-init";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { onPreloaderDone } from "@/components/preloader/preloader-ready";
-
-gsap.registerPlugin(SplitText);
 
 export function TextReveal({
   children,

@@ -2,8 +2,7 @@
 
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/utils/gsap-init";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import { TransitionLink } from "@/components/page-transition/transition-link";
@@ -14,8 +13,6 @@ import {
 } from "@/data/card-reveal-data";
 import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const smoothStep = (p: number) => p * p * (3 - 2 * p);
 // Single source of truth — rendered in both the static and animated

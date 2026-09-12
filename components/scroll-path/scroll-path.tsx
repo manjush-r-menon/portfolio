@@ -1,16 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap } from "@/utils/gsap-init";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import buildingAWebsiteImage from "@/images/about-building-a-website.svg";
 import programmingImage from "@/images/about-programming.svg";
 import juniorSoccerImage from "@/images/about-junior-soccer.svg";
 import codeThinkingImage from "@/images/about-code-thinking.svg";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
  * Ported from /references/ (index.html + script.js + style.css): a
