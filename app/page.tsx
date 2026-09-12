@@ -20,6 +20,7 @@ import {
 } from "@/components/blog-marquee/blog-marquee";
 import { BlogMarqueeMobileStrip } from "@/components/blog-marquee/blog-marquee-mobile-strip";
 import { getSiteImage } from "@/utils/site-images";
+import { CASE_STUDIES } from "@/data/case-studies-data";
 
 const heroImage = getSiteImage("hero-section-image");
 
@@ -28,6 +29,11 @@ const INSTRUMENTS = [
   { word: "TYPESCRIPT", accent: false },
   { word: "NEXT.JS", accent: false },
 ] as const;
+
+// Section 3's "Payment module" teaser is the same project as
+// CASE_STUDIES[0] ("Asking better questions") — reusing its real `tags`
+// here instead of hardcoding a stack list for the homepage teaser.
+const PAYMENT_MODULE_TAGS = CASE_STUDIES[0].tags ?? [];
 
 export default function Home() {
   const reduced = useReducedMotion();
@@ -170,23 +176,45 @@ export default function Home() {
   );
 
   const section3Content = (
-    <div className="flex min-h-[55vh] w-full flex-col justify-center">
+    <div className="relative flex min-h-[55vh] w-full flex-col justify-center overflow-hidden">
+      {/* Watermark numeral: fills the otherwise-empty middle of the panel
+          with intentional texture instead of dead space. Vertically
+          centered independent of the "03/" IndexLabel (which stays pinned
+          top-left at full opacity) so the two never visually collide. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-0 -z-10 -translate-y-1/2 -translate-x-[4%] font-bold text-[28vw] leading-none text-ink/[0.04] select-none"
+      >
+        03
+      </span>
       <IndexLabel index="03" large />
       <div className="mt-8 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
         <h2 className="grotesk-display text-[clamp(2.5rem,6vw,4.5rem)]">
           <span className="block">Payment</span>
           <span className="block">module</span>
         </h2>
-        <p className="flex max-w-sm items-start gap-3 font-sans text-[15px] leading-[1.7] text-ink-dim">
-          <ArrowIcon className="mt-1 h-4 w-4 shrink-0" />
-          <span>
-            Owned the payment module for an artist marketplace, end to end —
-            from requirements to a shipped, tested feature.
-          </span>
-        </p>
+        <div className="flex max-w-sm flex-col gap-4">
+          <div className="flex flex-wrap gap-2">
+            {PAYMENT_MODULE_TAGS.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-line px-3 py-1 font-sans text-xs text-ink-dim"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <p className="flex items-start gap-3 font-sans text-[15px] leading-[1.7] text-ink-dim">
+            <ArrowIcon className="mt-1 h-4 w-4 shrink-0" />
+            <span>
+              Owned the payment module for an artist marketplace, end to end
+              — from requirements to a shipped, tested feature.
+            </span>
+          </p>
+        </div>
       </div>
       <PillButton href="/work" className="mt-10 self-start">
-        View work
+        View work details
       </PillButton>
     </div>
   );
@@ -245,13 +273,38 @@ export default function Home() {
         Most of what I build and most of what I shoot start the same way —
         paying attention to the small stuff.
       </p>
-      {/* overflow-x-hidden, not -hidden: clipping the y-axis too cut off
-          the "j"'s descender (.line-mask's fix assumes a SplitText line
-          wrapper, not this div). Below `sm` the clamp's 3.5rem floor stops
-          shrinking with the viewport, so nowrap text runs wider than the
-          screen — wrap to two lines there instead. */}
+      {/* Root cause of the scrollbar that used to appear next to this text:
+          .grotesk-display sets line-height: 0.9 — under 1, so the font's
+          real glyph metrics render taller than that tight line box, by a
+          constant amount independent of viewport size (measured via
+          Playwright: the gap was identical across 768/900/1080px-tall
+          windows, ruling out a flex-squeeze — it's a fixed font-metrics
+          overflow). Pairing overflow-x-hidden (needed so an extreme aspect
+          ratio can never bleed the name past the viewport) with any
+          non-"visible" overflow-y also makes the CSS spec force
+          overflow-y's *computed* value to `auto` regardless of what's
+          written — so that constant glyph overflow rendered as a real
+          inner scrollbar here instead of being invisible.
+          pb-[0.25em] on the span (scales with its own huge clamp'd
+          font-size, unlike a fixed px value) gives the glyphs genuine extra
+          room by actually growing this box — as opposed to
+          styles/tailwind.css's existing `.line-mask` utility, which pads
+          and then cancels that same padding with an equal negative margin
+          (by design, for its one real use case: a SplitText line-reveal
+          mask that needs internal clip room without shifting external
+          layout) — canceling it right back out is exactly why reaching for
+          that class here first didn't fix anything: the box never actually
+          got taller. No negative margin here, so the "Get in touch" button
+          below sits a bit further down — a small, deliberate trade for the
+          scrollbar actually being gone. Always whitespace-normal (no forced
+          nowrap at any breakpoint): the clamp's 9.5rem ceiling can still be
+          wider than the name fits on plenty of real desktop window widths —
+          forcing one line there used to hard-clip the end of "Menon" with
+          no way to see it. Left free to wrap, the browser drops to two
+          lines whenever (and only when) it doesn't fit — the name is
+          always shown in full. */}
       <div className="mt-8 overflow-x-hidden">
-        <span className="grotesk-display block text-[clamp(3.5rem,11vw,9.5rem)] whitespace-normal sm:whitespace-nowrap">
+        <span className="grotesk-display block pb-[0.25em] text-[clamp(3.5rem,11vw,9.5rem)]">
           Manjush Menon
         </span>
       </div>
