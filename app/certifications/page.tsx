@@ -1,7 +1,30 @@
+import type { Metadata } from "next";
 import { certifications } from "@/data/certificate-data/certificate-data";
 import { CaseStudyCard } from "@/components/case-study-card/case-study-card";
 import { IndexLabel } from "@/components/index-label/index-label";
 import type { CaseStudy } from "@/data/case-studies-data";
+
+const TITLE = "Certifications | Manjush Menon";
+const DESCRIPTION =
+  "Validating expertise through continuous learning and professional development.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/certifications",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/twitter-image"],
+  },
+};
 
 const CERTIFICATION_STUDIES: CaseStudy[] = certifications.map(
   (certification, index) => ({

@@ -1,7 +1,30 @@
+import type { Metadata } from "next";
 import { CaseStudyCard } from "@/components/case-study-card/case-study-card";
 import { IndexLabel } from "@/components/index-label/index-label";
 import { CardRevealSequence } from "@/components/card-reveal/card-reveal";
 import { CASE_STUDIES } from "@/data/case-studies-data";
+
+const TITLE = "Work | Manjush Menon";
+const DESCRIPTION =
+  "Four projects, in the order they happened — what I actually did on each, not just the title on the ticket.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/work",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/twitter-image"],
+  },
+};
 
 export default function Work() {
   return (

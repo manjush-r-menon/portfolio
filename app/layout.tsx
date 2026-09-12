@@ -9,6 +9,7 @@ import { Providers } from "./providers";
 import "@/styles/tailwind.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://manjush.info"),
   title: "Manjush | Portfolio",
   description: "Frontend Developer Portfolio of Manjush",
 };

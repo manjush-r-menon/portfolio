@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { HomeClient } from "./home-client";
 
-const TITLE = "Manjush Menon | Frontend Developer Portfolio";
+const TITLE = "About | Manjush Menon";
 const DESCRIPTION =
-  "Portfolio of Manjush Menon, a frontend developer based in Kochi, India, building fast, accessible interfaces with React, TypeScript, and Next.js.";
+  "How I got into frontend development, what I do outside of code, and a gallery of moments along the way.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    url: "/",
+    url: "/about",
     type: "website",
     images: ["/opengraph-image"],
   },
@@ -23,6 +22,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <HomeClient />;
+export default function AboutLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
 }

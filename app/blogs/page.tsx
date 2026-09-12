@@ -1,5 +1,27 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/container/container";
 import { blogs } from "@/data/blog-data/blog-data";
+
+const TITLE = "Blogs | Manjush Menon";
+const DESCRIPTION = "Insights, tutorials, and stories from my development journey.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/blogs",
+    type: "website",
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/twitter-image"],
+  },
+};
 
 export default function Blogs() {
   return (
