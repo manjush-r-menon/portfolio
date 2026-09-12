@@ -65,10 +65,10 @@ export function ScrollPathMobile() {
       </div>
 
       <section className="rounded-2xl bg-line px-8 py-12 text-center">
-        <h1 className="font-display text-[clamp(1.75rem,7vw,2.5rem)] leading-[1.15] font-medium text-ink">
+        <h2 className="font-display text-[clamp(1.75rem,7vw,2.5rem)] leading-[1.15] font-medium text-ink">
           That&apos;s the summary version. What follows is the messier, more
           honest one — a gallery of moments, not milestones.
-        </h1>
+        </h2>
       </section>
     </div>
   );

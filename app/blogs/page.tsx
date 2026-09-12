@@ -7,9 +7,9 @@ export default function Blogs() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:max-w-none">
           <div className="text-center">
-            <h2 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
               Blogs
-            </h2>
+            </h1>
             <p className="mt-6 text-lg text-zinc-600 dark:text-zinc-400">
               Insights, tutorials, and stories from my development journey.
             </p>

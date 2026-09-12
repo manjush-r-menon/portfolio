@@ -288,10 +288,10 @@ export function ScrollPath() {
       </div>
 
       <section className="flex h-[100svh] w-full items-center justify-center overflow-hidden bg-line p-8">
-        <h1 className="w-full text-center font-display text-[clamp(1.75rem,5vw,3.25rem)] leading-[1.1] font-medium text-ink lg:w-3/5">
+        <h2 className="w-full text-center font-display text-[clamp(1.75rem,5vw,3.25rem)] leading-[1.1] font-medium text-ink lg:w-3/5">
           That&apos;s the summary version. What follows is the messier, more
           honest one — a gallery of moments, not milestones.
-        </h1>
+        </h2>
       </section>
     </div>
   );

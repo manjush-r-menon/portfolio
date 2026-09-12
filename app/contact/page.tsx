@@ -108,6 +108,7 @@ export default function Contact() {
 
   return (
     <>
+      <h1 className="sr-only">Contact</h1>
       {/* `-mb-*` (cancelling <main>'s own reserved bottom padding — see
           app/layout.tsx's `pb-20 sm:pb-16`, there specifically so content
           never sits under the `fixed` SiteFooter bar) is desktop-only.
@@ -127,7 +128,7 @@ export default function Contact() {
           an oversized gap somewhere rather than actually shrinking the
           page — natural content height reads as the compact, snug flow
           the reference has. */}
-      <h1 className="relative flex flex-col justify-start overflow-hidden pb-10 lg:flex-1">
+      <div className="relative flex flex-col justify-start overflow-hidden pb-10 lg:flex-1">
         {WORDS.map((word, index) =>
           index === 1 ? (
             <div key={word.text} className="flex items-end gap-10">
@@ -151,7 +152,7 @@ export default function Contact() {
             </motion.span>
           )
         )}
-      </h1>
+      </div>
 
       <div className="relative flex w-full flex-col items-start justify-end gap-8 border-t border-line px-6 pb-10 sm:px-10 lg:w-[26rem] lg:border-t-0 lg:px-0 lg:pb-16">
         {/* Divider line (desktop only, unchanged) plus the "Connect now"
