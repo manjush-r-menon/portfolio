@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
@@ -42,6 +43,13 @@ export function SmoothScrollProvider({
   const reduced = useReducedMotion();
   const isMobileScroll = useIsMobileScroll();
   const [lenis, setLenis] = useState<Lenis | null>(null);
+  // Read inside the pathname effect below instead of listing `lenis` as a
+  // dependency — this ref always holds the current instance (or null)
+  // without making that effect re-fire just because Lenis itself was
+  // recreated (e.g. a reduced-motion/mobile-width toggle), which should be
+  // unrelated to "did the route change."
+  const lenisRef = useRef<Lenis | null>(null);
+  lenisRef.current = lenis;
 
   useEffect(() => {
     if (reduced || isMobileScroll) return;
@@ -66,6 +74,28 @@ export function SmoothScrollProvider({
       setLenis(null);
     };
   }, [reduced, isMobileScroll]);
+
+  // Client-side navigation (TransitionLink's router.push — see
+  // transition-link.tsx — or browser back/forward; history.scrollRestoration
+  // is 'manual' site-wide per app/layout.tsx, so nothing restores scroll
+  // automatically there either) otherwise leaves the browser's real scrollY
+  // exactly where it was on the previous page: a new route mounts already
+  // scrolled halfway down, matching wherever the last page was left.
+  // Resetting native scroll alone isn't enough once Lenis is running,
+  // either — Lenis keeps its own internal target/animated-scroll state (it
+  // drives window.scrollY directly, see this file's own doc comment above),
+  // which a plain window.scrollTo doesn't know to update, so Lenis's very
+  // next animation frame fights the reset back toward its stale target.
+  // Resetting both explicitly on every pathname change is what actually
+  // makes a new page start at the top regardless of where the last one was
+  // left. This runs while TransitionLink's wipe is still fully covering the
+  // screen (router.push fires mid-cover, before the uncover half starts —
+  // see transition-provider.tsx), so there's nothing to visibly jump.
+  const pathname = usePathname();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    lenisRef.current?.scrollTo(0, { immediate: true });
+  }, [pathname]);
 
   return (
     <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>
