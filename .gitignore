@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal planning docs (kept locally, not for the public repo)
+/AUDIT.md
+/HANDOFF.md
+/MOBILE-SCROLL-PLAN.md
+/REPO-DEEP-DIVE.md
