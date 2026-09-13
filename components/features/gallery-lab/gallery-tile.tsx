@@ -1,6 +1,13 @@
 "use client";
 
-import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -74,15 +81,63 @@ export const GalleryTile = memo(function GalleryTile({
   const groupRef = useRef<THREE.Group>(null);
   const imageMaterialRef = useRef<GalleryTileMaterialImpl>(null);
   const [hovered, setHovered] = useState(false);
-  // Reactive (see the isFocused prop doc above) — used here to request the
-  // larger detail-size image only for the tile that's actually focused,
-  // and the small grid-thumbnail size otherwise. The detail size loads
-  // lazily on this exact transition (see gallery-scene.tsx's
-  // preloadSectionThumbnails / startTransition-wrapped focus updates),
-  // not preloaded up front.
-  const texture = useTexture(
-    getOptimizedSrc(data.src, isFocused ? DETAIL_VIEW_WIDTH : GRID_THUMBNAIL_WIDTH),
-  );
+  // Always the grid-thumbnail size, resolved via useTexture (Suspense-based)
+  // — safe to suspend on, since gallery-scene.tsx batch-preloads a whole
+  // section's thumbnails before its tiles mount, so this call almost always
+  // resolves from cache immediately. Never swapped for the detail size: the
+  // mesh always has SOME texture bound, so there's never a frame with
+  // nothing (or a default/black-sampling empty THREE.Texture) rendered.
+  const thumbnailTexture = useTexture(getOptimizedSrc(data.src, GRID_THUMBNAIL_WIDTH));
+
+  // The detail-resolution upgrade, loaded lazily on first focus — but
+  // deliberately NOT via useTexture/Suspense. A tile that's never been
+  // focused before has no cached detail texture, and suspending here would
+  // mean this tile's own subtree (even with its own per-tile Suspense
+  // boundary — see gallery-grid.tsx) has no prior "resolved" render to hold
+  // during that first suspend, so there'd be nothing to fall back to but
+  // the fallback (or, historically, an unbound/default texture rendering
+  // black). Loading it imperatively instead means the component never
+  // suspends on this: it just keeps rendering the already-available
+  // thumbnail until the detail texture's own load callback fires, then
+  // swaps it in — a quality upgrade with no intermediate empty frame.
+  const [detailTexture, setDetailTexture] = useState<THREE.Texture | null>(null);
+  const detailTextureRef = useRef<THREE.Texture | null>(null);
+  const detailLoadStarted = useRef(false);
+
+  // Tracks real unmount only — not focus toggling — so an in-flight load
+  // started while focused keeps running (and still lands, still caching
+  // the result for next time) even if the user unfocuses before it
+  // resolves. Without this split, unfocusing mid-load would both discard
+  // the in-flight result AND (via detailLoadStarted staying true) block
+  // ever retrying it, leaving that tile stuck on the thumbnail forever.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      detailTextureRef.current?.dispose();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isFocused || detailLoadStarted.current) return;
+    detailLoadStarted.current = true;
+    new THREE.TextureLoader().load(
+      getOptimizedSrc(data.src, DETAIL_VIEW_WIDTH),
+      (loaded) => {
+        if (!isMountedRef.current) {
+          loaded.dispose();
+          return;
+        }
+        detailTextureRef.current = loaded;
+        setDetailTexture(loaded);
+      },
+    );
+  }, [isFocused, data.src]);
+
+  // Grid-scale rendering always uses the cheap thumbnail, even once the
+  // detail texture has loaded once before — only the focused view benefits
+  // from (and is worth the GPU memory of) the larger texture.
+  const texture = isFocused && detailTexture ? detailTexture : thumbnailTexture;
   const reducedMotion = useReducedMotion();
 
   const focusZ = useRef(0);

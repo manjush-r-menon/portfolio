@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useMemo, useState } from "react";
+import { Suspense, startTransition, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { CONFIG } from "./gallery-config";
 import { calculateGridDimensions } from "./gallery-state";
@@ -76,23 +76,35 @@ export function GalleryGrid({
       {mappedItems.map((item, i) => {
         if (i > mountedCount) return null;
         return (
-          <GalleryTile
-            key={item.id}
-            data={item}
-            index={item.index}
-            basePos={item.basePos}
-            gridVisible={gridVisible}
-            transitionStartTime={transitionStartTime}
-            interactive={interactive}
-            gridHeight={gridDims.height}
-            // Computed here rather than passing the raw focusedIndex
-            // through: this way each tile's own prop value only changes
-            // when ITS focus state actually flips, which is what lets
-            // GalleryTile's React.memo skip re-rendering every other tile
-            // on a focus toggle instead of seeing a "changed" prop on all
-            // of them.
-            isFocused={focusedIndex === item.index}
-          />
+          // One Suspense boundary per tile, not one shared boundary for the
+          // whole layer (that's still above, in gallery-scene.tsx, for
+          // layer-vs-layer isolation during section switches). Focusing a
+          // tile swaps it to its lazily-loaded detail texture, which can
+          // suspend — with a per-layer boundary, resolving that suspension
+          // forced every sibling tile in the section to remount, resetting
+          // their mount-only enter-opacity effect and producing a visible
+          // whole-grid flash. Scoping the boundary to just this tile means
+          // only its own subtree holds its last frame (the thumbnail,
+          // already on screen) while the detail texture loads; siblings
+          // never re-render at all, let alone remount.
+          <Suspense key={item.id} fallback={null}>
+            <GalleryTile
+              data={item}
+              index={item.index}
+              basePos={item.basePos}
+              gridVisible={gridVisible}
+              transitionStartTime={transitionStartTime}
+              interactive={interactive}
+              gridHeight={gridDims.height}
+              // Computed here rather than passing the raw focusedIndex
+              // through: this way each tile's own prop value only changes
+              // when ITS focus state actually flips, which is what lets
+              // GalleryTile's React.memo skip re-rendering every other tile
+              // on a focus toggle instead of seeing a "changed" prop on all
+              // of them.
+              isFocused={focusedIndex === item.index}
+            />
+          </Suspense>
         );
       })}
     </>
