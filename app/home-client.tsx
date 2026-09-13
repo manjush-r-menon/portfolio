@@ -23,7 +23,15 @@ import { BlogMarqueeMobileStrip } from "@/components/features/blog-marquee/blog-
 import { getSiteImage } from "@/utils/site-images";
 import { CASE_STUDIES } from "@/data/case-studies";
 
-const heroImage = getSiteImage("hero-section-image");
+// Art-directed per breakpoint (see draggable-photo.tsx's ResponsivePicture)
+// rather than one image cropped via object-cover — each of these is
+// pre-cropped to its breakpoint's exact container ratio.
+const heroImageSources = {
+  base: getSiteImage("home-page-default-image"),
+  sm: getSiteImage("home-page-image-sm"),
+  lg: getSiteImage("home-page-image-lg"),
+  xl: getSiteImage("home-page-image-xl"),
+};
 
 const INSTRUMENTS = [
   { word: "REACT", accent: true },
@@ -129,7 +137,7 @@ export function HomeClient() {
           transition={t(0.5, 0.3)}
         >
           <DraggablePhoto
-            src={heroImage.url}
+            sources={heroImageSources}
             alt="Manjush R Menon"
             constraintsRef={sectionOneRef}
           />

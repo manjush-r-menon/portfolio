@@ -20,7 +20,12 @@
  * broken images to real visitors if deployed before this script has been
  * run at least once. Run it (and verify locally) before shipping.
  *
- * Safe to re-run: addRandomSuffix is off and allowOverwrite is on.
+ * Safe to re-run: addRandomSuffix is off and allowOverwrite is on. Also
+ * safe to run after cleaning up already-uploaded source files from
+ * images/ — a file in FILES that's no longer present locally is skipped
+ * (with a warning) rather than crashing, and its existing manifest entry
+ * is left untouched, since the manifest is merged into rather than
+ * rebuilt from scratch.
  */
 import { put } from "@vercel/blob";
 import sharp from "sharp";
@@ -36,7 +41,13 @@ const MANIFEST_PATH = "data/site-images-manifest.json";
 // Explicit list rather than "every .jpg in images/" — this folder also
 // holds SVGs that must NOT go through this path (see doc comment above).
 const FILES = [
-  "hero-section-image.jpg",
+  // Replaces the old single hero-section-image.jpg (art-directed per
+  // breakpoint instead of one image cropped via object-cover) — see
+  // components/features/draggable-photo/draggable-photo.tsx.
+  "home-page-default-image.jpg",
+  "home-page-image-sm.jpg",
+  "home-page-image-lg.jpg",
+  "home-page-image-xl.jpg",
   "gallery-image-1.jpg",
   "gallery-image-2.jpg",
   "gallery-image-3.jpg",
@@ -65,10 +76,16 @@ async function run() {
     );
   }
 
-  const manifest: SiteImagesManifest = {};
+  const manifest: SiteImagesManifest = fs.existsSync(MANIFEST_PATH)
+    ? JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"))
+    : {};
 
   for (const file of FILES) {
     const filePath = path.join(IMAGES_DIR, file);
+    if (!fs.existsSync(filePath)) {
+      console.warn(`Skipping "${file}": not found in ${IMAGES_DIR}/`);
+      continue;
+    }
     const buffer = fs.readFileSync(filePath);
 
     const metadata = await sharp(buffer).metadata();

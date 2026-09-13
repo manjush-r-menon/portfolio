@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -10,9 +10,116 @@ import {
   useTransform,
 } from "framer-motion";
 import { matchesMobileScrollBreakpoint } from "@/utils/hooks/use-is-mobile-scroll";
+import type { SiteImage } from "@/utils/site-images";
 
 const PHOTO_SIZE_CLASS =
   "h-40 w-72 sm:h-44 sm:w-[28rem] lg:h-56 lg:w-[40rem] xl:h-60 xl:w-[48rem]";
+
+/**
+ * One image per breakpoint (art direction, not just responsive sizing) —
+ * each entry is pre-cropped to that breakpoint's exact container ratio
+ * (see PHOTO_SIZE_CLASS), so ResponsivePicture below can render it with
+ * object-cover and never actually need to crop anything itself.
+ */
+export interface ResponsivePhotoSources {
+  /** <640px */
+  base: SiteImage;
+  /** >=640px (Tailwind `sm`) */
+  sm: SiteImage;
+  /** >=1024px (Tailwind `lg`) */
+  lg: SiteImage;
+  /** >=1280px (Tailwind `xl`) */
+  xl: SiteImage;
+}
+
+// Matches PHOTO_SIZE_CLASS's own widths at each breakpoint — accurate
+// `sizes` since these are fixed-width containers, not fluid ones.
+const SIZES = { base: "288px", sm: "448px", lg: "640px", xl: "768px" };
+
+const PICTURE_IMG_STYLE: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  objectPosition: "50% 38%",
+};
+
+/**
+ * Art-directed <picture>, built via next/image's getImageProps rather than
+ * <Image fill>: fill only handles responsive SIZING of one source image,
+ * but each breakpoint here has its own distinct crop (see
+ * ResponsivePhotoSources), so the browser needs to choose between four
+ * different source images based on viewport width, not just serve
+ * different resolutions of the same one. <source> order matters — the
+ * browser picks the first one whose `media` matches, so these must go
+ * widest-first (an xl viewport also satisfies "min-width: 640px").
+ */
+function ResponsivePicture({
+  sources,
+  alt,
+  draggableAttr,
+}: {
+  sources: ResponsivePhotoSources;
+  alt: string;
+  draggableAttr?: boolean;
+}) {
+  const common = { alt, priority: true };
+  const {
+    props: { srcSet: xlSrcSet },
+  } = getImageProps({
+    ...common,
+    src: sources.xl.url,
+    width: sources.xl.width,
+    height: sources.xl.height,
+    sizes: SIZES.xl,
+  });
+  const {
+    props: { srcSet: lgSrcSet },
+  } = getImageProps({
+    ...common,
+    src: sources.lg.url,
+    width: sources.lg.width,
+    height: sources.lg.height,
+    sizes: SIZES.lg,
+  });
+  const {
+    props: { srcSet: smSrcSet },
+  } = getImageProps({
+    ...common,
+    src: sources.sm.url,
+    width: sources.sm.width,
+    height: sources.sm.height,
+    sizes: SIZES.sm,
+  });
+  // The fallback <img>'s own attributes come from the smallest (base)
+  // image — its srcSet is discarded here since it's never used as a
+  // <source>; the base crop is what plain `src` falls back to when no
+  // wider <source> matches.
+  const {
+    props: { srcSet: _baseSrcSet, ...baseImgProps },
+  } = getImageProps({
+    ...common,
+    src: sources.base.url,
+    width: sources.base.width,
+    height: sources.base.height,
+    sizes: SIZES.base,
+  });
+
+  return (
+    <picture>
+      <source media="(min-width: 1280px)" srcSet={xlSrcSet} />
+      <source media="(min-width: 1024px)" srcSet={lgSrcSet} />
+      <source media="(min-width: 640px)" srcSet={smSrcSet} />
+      <img
+        {...baseImgProps}
+        alt={alt}
+        style={PICTURE_IMG_STYLE}
+        draggable={draggableAttr}
+      />
+    </picture>
+  );
+}
 
 function DragMeLabel() {
   return (
@@ -31,22 +138,14 @@ function DragMeLabel() {
 }
 
 interface PhotoProps {
-  src: string;
+  sources: ResponsivePhotoSources;
   alt: string;
 }
 
-function StaticPhoto({ src, alt }: PhotoProps) {
+function StaticPhoto({ sources, alt }: PhotoProps) {
   return (
     <div className={`${PHOTO_SIZE_CLASS} relative overflow-hidden`}>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover"
-        style={{ objectPosition: "50% 38%" }}
-        priority
-        sizes="640px"
-      />
+      <ResponsivePicture sources={sources} alt={alt} />
     </div>
   );
 }
@@ -57,7 +156,7 @@ interface InteractivePhotoProps extends PhotoProps {
 }
 
 function InteractivePhoto({
-  src,
+  sources,
   alt,
   constraintsRef,
 }: InteractivePhotoProps) {
@@ -113,16 +212,7 @@ function InteractivePhoto({
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           className="relative h-full w-full"
         >
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            className="object-cover"
-            style={{ objectPosition: "50% 38%" }}
-            priority
-            sizes="640px"
-            draggable={false}
-          />
+          <ResponsivePicture sources={sources} alt={alt} draggableAttr={false} />
         </motion.div>
       </motion.div>
     </motion.div>
@@ -130,7 +220,7 @@ function InteractivePhoto({
 }
 
 export function DraggablePhoto({
-  src,
+  sources,
   alt,
   constraintsRef,
 }: InteractivePhotoProps) {
@@ -151,8 +241,8 @@ export function DraggablePhoto({
   }, []);
 
   return interactive ? (
-    <InteractivePhoto src={src} alt={alt} constraintsRef={constraintsRef} />
+    <InteractivePhoto sources={sources} alt={alt} constraintsRef={constraintsRef} />
   ) : (
-    <StaticPhoto src={src} alt={alt} />
+    <StaticPhoto sources={sources} alt={alt} />
   );
 }

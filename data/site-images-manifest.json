@@ -1,9 +1,4 @@
 {
-  "hero-section-image": {
-    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/hero-section-image.jpg",
-    "width": 1024,
-    "height": 1536
-  },
   "gallery-image-1": {
     "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-1.jpg",
     "width": 612,
@@ -63,5 +58,25 @@
     "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/gallery-image-12.jpg",
     "width": 316,
     "height": 562
+  },
+  "home-page-default-image": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/home-page-default-image.jpg",
+    "width": 441,
+    "height": 244
+  },
+  "home-page-image-sm": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/home-page-image-sm.jpg",
+    "width": 1369,
+    "height": 538
+  },
+  "home-page-image-lg": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/home-page-image-lg.jpg",
+    "width": 1371,
+    "height": 480
+  },
+  "home-page-image-xl": {
+    "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/site/home-page-image-xl.jpg",
+    "width": 1371,
+    "height": 428
   }
 }
