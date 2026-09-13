@@ -22,10 +22,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactLayout({
-  children,
-}: {
+interface ContactLayoutProps {
   children: React.ReactNode;
-}) {
+}
+
+export default function ContactLayout({ children }: ContactLayoutProps) {
   return <>{children}</>;
 }

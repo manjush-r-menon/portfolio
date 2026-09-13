@@ -1,4 +1,4 @@
-import { blogs } from "@/data/blog-data/blog-data";
+import { blogs } from "@/data/blogs";
 
 // The 7 real cards are the same 7 posts /blogs itself renders — a single
 // source of truth, so this marquee can't drift out of sync with the actual

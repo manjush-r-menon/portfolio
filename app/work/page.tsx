@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { CaseStudyCard } from "@/components/case-study-card/case-study-card";
-import { IndexLabel } from "@/components/index-label/index-label";
-import { CardRevealSequence } from "@/components/card-reveal/card-reveal";
-import { CASE_STUDIES } from "@/data/case-studies-data";
+import { CaseStudyCard } from "@/components/features/case-study-card/case-study-card";
+import { IndexLabel } from "@/components/ui/index-label/index-label";
+import { CardRevealSequence } from "@/components/features/card-reveal/card-reveal";
+import { CASE_STUDIES } from "@/data/case-studies";
 
 const TITLE = "Work | Manjush Menon";
 const DESCRIPTION =

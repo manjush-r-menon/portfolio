@@ -2,26 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue } from "framer-motion";
-import { useReducedMotion } from "@/utils/use-reduced-motion";
-import { TextReveal } from "@/components/text-reveal/text-reveal";
-import { IndexLabel } from "@/components/index-label/index-label";
-import { IdleIconPair } from "@/components/idle-icons/idle-icon-pair";
-import { AmbientShape } from "@/components/ambient-shape/ambient-shape";
-import { DraggablePhoto } from "@/components/draggable-photo/draggable-photo";
-import { PillButton } from "@/components/pill-button/pill-button";
-import { ArrowIcon } from "@/components/icon-components/arrow-icon";
-import { HorizontalScrollHome } from "@/components/horizontal-scroll/horizontal-scroll-home";
-import { SecretReveal } from "@/components/secret-reveal/secret-reveal";
+import { useReducedMotion } from "@/utils/hooks/use-reduced-motion";
+import { TextReveal } from "@/components/features/text-reveal/text-reveal";
+import { IndexLabel } from "@/components/ui/index-label/index-label";
+import { IdleIconPair } from "@/components/features/idle-icons/idle-icon-pair";
+import { AmbientShape } from "@/components/ui/ambient-shape/ambient-shape";
+import { DraggablePhoto } from "@/components/features/draggable-photo/draggable-photo";
+import { PillButton } from "@/components/ui/pill-button/pill-button";
+import { ArrowIcon } from "@/components/ui/icon-components/arrow-icon";
+import { HorizontalScrollHome } from "@/components/features/horizontal-scroll/horizontal-scroll-home";
+import { SecretReveal } from "@/components/features/secret-reveal/secret-reveal";
 import {
   BlogMarquee,
   BLOG_MARQUEE_PIN_VH,
   BLOG_MARQUEE_PIN_PAUSE_MS,
   getBlogMarqueePinVh,
   pxToPinVh,
-} from "@/components/blog-marquee/blog-marquee";
-import { BlogMarqueeMobileStrip } from "@/components/blog-marquee/blog-marquee-mobile-strip";
+} from "@/components/features/blog-marquee/blog-marquee";
+import { BlogMarqueeMobileStrip } from "@/components/features/blog-marquee/blog-marquee-mobile-strip";
 import { getSiteImage } from "@/utils/site-images";
-import { CASE_STUDIES } from "@/data/case-studies-data";
+import { CASE_STUDIES } from "@/data/case-studies";
 
 const heroImage = getSiteImage("hero-section-image");
 

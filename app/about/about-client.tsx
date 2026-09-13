@@ -2,23 +2,25 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { useReducedMotion } from "@/utils/hooks/use-reduced-motion";
 import {
   useIsMobileScroll,
   matchesMobileScrollBreakpoint,
-} from "@/utils/use-is-mobile-scroll";
+} from "@/utils/hooks/use-is-mobile-scroll";
+
+interface AboutClientProps {
+  desktopPath: ReactNode;
+  mobilePath: ReactNode;
+  desktopGallery: ReactNode;
+  mobileGallery: ReactNode;
+}
 
 export function AboutClient({
   desktopPath,
   mobilePath,
   desktopGallery,
   mobileGallery,
-}: {
-  desktopPath: ReactNode;
-  mobilePath: ReactNode;
-  desktopGallery: ReactNode;
-  mobileGallery: ReactNode;
-}) {
+}: AboutClientProps) {
   const reduced = useReducedMotion();
   const isMobileScroll = useIsMobileScroll();
   // Defaults to the plain mobile layout on server + first client paint,

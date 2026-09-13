@@ -13,7 +13,7 @@ export const inter = Inter({
   subsets: ["latin"],
 });
 
-// Scoped to ErrorCube (see components/error-cube/error-cube.tsx) rather
+// Scoped to ErrorCube (see components/features/error-cube/error-cube.tsx) rather
 // than applied on <html> in app/layout.tsx like the two above — it's only
 // ever rendered on /error and /not-found, so its .variable class is applied
 // there instead, keeping the font out of every other route's bundle.

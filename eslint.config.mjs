@@ -15,8 +15,8 @@ export default defineConfig([
       'build/**',
       'coverage/**',
       '**/*.log',
-      // Dropped-in reference project (see components/gallery-lab) — its own
-      // package.json/eslint setup, not source this repo maintains.
+      // Dropped-in reference project (see components/features/gallery-lab)
+      // — its own package.json/eslint setup, not source this repo maintains.
       'reference/**',
     ],
   },
@@ -43,7 +43,7 @@ export default defineConfig([
     // attributes, so react/no-unknown-property doesn't recognize them by
     // default. Scoped to the gallery-lab R3F port rather than the whole
     // repo since nothing else uses R3F.
-    files: ['components/gallery-lab/**/*.{ts,tsx}'],
+    files: ['components/features/gallery-lab/**/*.{ts,tsx}'],
     rules: {
       'react/no-unknown-property': [
         'error',

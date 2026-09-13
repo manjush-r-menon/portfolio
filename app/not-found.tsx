@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ErrorCube, type MarqueeSegment } from "@/components/error-cube/error-cube";
-import { PillButton } from "@/components/pill-button/pill-button";
+import { ErrorCube, type MarqueeSegment } from "@/components/features/error-cube/error-cube";
+import { PillButton } from "@/components/ui/pill-button/pill-button";
 
 const NOT_FOUND_PHRASES: MarqueeSegment[] = [
   { pre: "You've", highlight: "wandered", post: "off the map." },

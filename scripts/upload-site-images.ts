@@ -15,7 +15,7 @@
  * Run manually: npm run upload-site-images
  * Requires BLOB_READ_WRITE_TOKEN in .env.local.
  *
- * IMPORTANT: app/page.tsx and components/gallery-wall/gallery-wall.tsx
+ * IMPORTANT: app/page.tsx and components/features/gallery-wall/gallery-wall.tsx
  * are live, linked pages — unlike the gallery-lab migration, they'll show
  * broken images to real visitors if deployed before this script has been
  * run at least once. Run it (and verify locally) before shipping.

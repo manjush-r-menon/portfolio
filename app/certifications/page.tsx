@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { certifications } from "@/data/certificate-data/certificate-data";
-import { CaseStudyCard } from "@/components/case-study-card/case-study-card";
-import { IndexLabel } from "@/components/index-label/index-label";
-import type { CaseStudy } from "@/data/case-studies-data";
+import { certifications } from "@/data/certifications";
+import { CaseStudyCard } from "@/components/features/case-study-card/case-study-card";
+import { IndexLabel } from "@/components/ui/index-label/index-label";
+import type { CaseStudy } from "@/data/case-studies";
 
 const TITLE = "Certifications | Manjush Menon";
 const DESCRIPTION =

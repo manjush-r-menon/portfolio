@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { fraunces, inter } from "@/utils/fonts";
-import { SiteNav } from "@/components/site-nav/site-nav";
-import { SiteFooter } from "@/components/site-footer/site-footer";
-import { PageSettle } from "@/components/page-transition/page-settle";
-import { DualCursor } from "@/components/cursor/dual-cursor";
-import { Preloader } from "@/components/preloader/preloader";
+import { SiteNav } from "@/components/features/site-nav/site-nav";
+import { SiteFooter } from "@/components/features/site-footer/site-footer";
+import { PageSettle } from "@/components/features/page-transition/page-settle";
+import { DualCursor } from "@/components/features/cursor/dual-cursor";
+import { Preloader } from "@/components/features/preloader/preloader";
 import { Providers } from "./providers";
 import "@/styles/tailwind.css";
 
@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   description: "Frontend Developer Portfolio of Manjush",
 };
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: React.ReactNode;
-}) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
@@ -36,7 +36,7 @@ export default function RootLayout({
           }}
         />
         {/* Home maps vertical scroll to a horizontal panel offset
-            (components/horizontal-scroll/pinned-track.tsx). Browsers
+            (components/features/horizontal-scroll/pinned-track.tsx). Browsers
             restore the previous scroll position on reload by default,
             which here reads as the page jumping to the right on repeat
             refreshes. Runs synchronously, before the browser's own

@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ErrorCube, type MarqueeSegment } from "@/components/error-cube/error-cube";
-import { PillButton } from "@/components/pill-button/pill-button";
+import { ErrorCube, type MarqueeSegment } from "@/components/features/error-cube/error-cube";
+import { PillButton } from "@/components/ui/pill-button/pill-button";
 
 const ERROR_PHRASES: MarqueeSegment[] = [
   { pre: "Something", highlight: "broke", post: "back there." },
@@ -22,12 +22,12 @@ const ERROR_PHRASES: MarqueeSegment[] = [
   { pre: "Better take the scenic route", highlight: "back", post: "." },
 ];
 
-export default function Error({
-  error,
-}: {
+interface ErrorPageProps {
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}
+
+export default function Error({ error }: ErrorPageProps) {
   const router = useRouter();
 
   useEffect(() => {

@@ -1,20 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useReducedMotion } from "@/utils/use-reduced-motion";
+import { useReducedMotion } from "@/utils/hooks/use-reduced-motion";
 import { CONTACT_INFO } from "@/utils/contact-info";
-import { useKochiTime } from "@/utils/use-kochi-time";
-import { MagneticIcon } from "@/components/magnetic-icon/magnetic-icon";
-import { BloomPanel } from "@/components/bloom-panel/bloom-panel";
-import { InstagramIcon } from "@/components/icon-components/instagram-icon";
-import { LinkedInIcon } from "@/components/icon-components/linked-in-icon";
-import { GmailIcon } from "@/components/icon-components/gmail-icon";
-import { WhatsAppIcon } from "@/components/icon-components/whatsapp-icon";
-
-// The email/phone contact form (components/contact-me/contact-me-section.tsx)
-// is intentionally not rendered here right now — the page is being reworked
-// to a single-screen hero. The component is untouched and ready to bring
-// back once we decide where it belongs.
+import { useKochiTime } from "@/utils/hooks/use-kochi-time";
+import { MagneticIcon } from "@/components/features/magnetic-icon/magnetic-icon";
+import { BloomPanel } from "@/components/features/bloom-panel/bloom-panel";
+import { InstagramIcon } from "@/components/ui/icon-components/instagram-icon";
+import { LinkedInIcon } from "@/components/ui/icon-components/linked-in-icon";
+import { GmailIcon } from "@/components/ui/icon-components/gmail-icon";
+import { WhatsAppIcon } from "@/components/ui/icon-components/whatsapp-icon";
 
 const WORDS = [
   { text: "REACH", indent: 0 },
