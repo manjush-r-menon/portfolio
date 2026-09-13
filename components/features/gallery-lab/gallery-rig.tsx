@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { easing } from "maath";
@@ -30,6 +30,17 @@ export function Rig({ gridW, gridH }: GalleryRigProps) {
     }
   }, [camera]);
 
+  const getBounds = useCallback(() => {
+    const dist = camera.position.z;
+    const perspectiveCamera = camera as THREE.PerspectiveCamera;
+    const vFov = (perspectiveCamera.fov * Math.PI) / 180;
+    const visibleHeight = 2 * Math.tan(vFov / 2) * dist;
+    const visibleWidth = visibleHeight * perspectiveCamera.aspect;
+    const xLimit = Math.max(0, (gridW - visibleWidth) / 2 + 2);
+    const yLimit = Math.max(0, (gridH - visibleHeight) / 2 + 2);
+    return { x: xLimit, y: yLimit, visibleHeight };
+  }, [camera, gridW, gridH]);
+
   useEffect(() => {
     const canvas = gl.domElement;
     let isDown = false;
@@ -38,17 +49,6 @@ export function Rig({ gridW, gridH }: GalleryRigProps) {
     let initialRigX = 0;
     let initialRigY = 0;
     let maxDragDistance = 0;
-
-    const getBounds = () => {
-      const dist = camera.position.z;
-      const perspectiveCamera = camera as THREE.PerspectiveCamera;
-      const vFov = (perspectiveCamera.fov * Math.PI) / 180;
-      const visibleHeight = 2 * Math.tan(vFov / 2) * dist;
-      const visibleWidth = visibleHeight * perspectiveCamera.aspect;
-      const xLimit = Math.max(0, (gridW - visibleWidth) / 2 + 2);
-      const yLimit = Math.max(0, (gridH - visibleHeight) / 2 + 2);
-      return { x: xLimit, y: yLimit, visibleHeight };
-    };
 
     const onDown = (e: PointerEvent) => {
       isDown = true;
@@ -114,7 +114,58 @@ export function Rig({ gridW, gridH }: GalleryRigProps) {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
     };
-  }, [gl, camera, gridW, gridH]);
+  }, [gl, camera, gridW, gridH, getBounds]);
+
+  // Keyboard fallback for the pointer-only drag-pan/zoom above: arrow keys
+  // pan by one grid cell, +/- zoom by a fixed step. Bound to `window`
+  // rather than the canvas — this route is a full-screen, single-purpose
+  // canvas overlay (see gallery-scene.tsx) with nothing else to tab to, so
+  // requiring the (not natively focusable) canvas to hold focus first would
+  // just be friction, not an accessibility win. Mutates the same rigState
+  // the pointer handlers do, so panning/zooming this way gets the exact
+  // same damped camera motion (see useFrame below) as a mouse drag.
+  useEffect(() => {
+    const panStep = CONFIG.itemSize + CONFIG.gap;
+    const zoomStep = 3;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && /^(input|textarea|select)$/i.test(target.tagName)) return;
+
+      switch (e.key) {
+        case "ArrowUp":
+          rigState.target.y += panStep;
+          break;
+        case "ArrowDown":
+          rigState.target.y -= panStep;
+          break;
+        case "ArrowLeft":
+          rigState.target.x -= panStep;
+          break;
+        case "ArrowRight":
+          rigState.target.x += panStep;
+          break;
+        case "+":
+        case "=":
+          rigState.zoom = Math.max(CONFIG.zoomIn, rigState.zoom - zoomStep);
+          break;
+        case "-":
+        case "_":
+          rigState.zoom = Math.min(CONFIG.zoomOut, rigState.zoom + zoomStep);
+          break;
+        default:
+          return;
+      }
+      e.preventDefault();
+      const { x: bx, y: by } = getBounds();
+      rigState.target.x = Math.max(-bx, Math.min(bx, rigState.target.x));
+      rigState.target.y = Math.max(-by, Math.min(by, rigState.target.y));
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [getBounds]);
 
   useFrame((_, delta) => {
     easing.damp3(rigState.current, rigState.target, CONFIG.dampFactor, delta);

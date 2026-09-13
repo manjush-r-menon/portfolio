@@ -25,4 +25,16 @@ gsap.registerPlugin(CustomEase);
 // are numerically equivalent to it.
 export const motionEaseOut = CustomEase.create("motionEaseOut", "0, 0, 0.58, 1");
 
+// Framer Motion's built-in "easeInOut" (motion-utils/dist/cjs/index.js:
+// `cubicBezier(0.42, 0, 0.58, 1)`, the same control points as CSS's own
+// `ease-in-out`), reproduced exactly for ambient-shape.tsx and
+// idle-icon-pair.tsx, migrated off framer-motion in the same pass that
+// scoped the rest of the animation-library consolidation down to just
+// these two self-contained loops. Same byte-for-byte CustomEase.create
+// parsing as motionEaseOut above.
+export const motionEaseInOut = CustomEase.create(
+  "motionEaseInOut",
+  "0.42, 0, 0.58, 1",
+);
+
 export { gsap };

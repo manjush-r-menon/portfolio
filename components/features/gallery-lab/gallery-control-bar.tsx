@@ -199,7 +199,7 @@ function ControlButton({ onClick, icon, label }: ControlButtonProps) {
     <motion.button
       layout="position"
       onClick={onClick}
-      className="control-button"
+      className="control-button focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
       whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.05)" }}
       whileTap={{ scale: 0.9 }}
       transition={{ duration: 0.2 }}
@@ -214,7 +214,6 @@ function ControlButton({ onClick, icon, label }: ControlButtonProps) {
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
-        outline: "none",
       }}
       aria-label={label}
     >
