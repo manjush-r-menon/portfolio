@@ -145,6 +145,60 @@
       "width": 1200,
       "height": 1600,
       "filename": "img20220311083804.jpg"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing.jpg",
+      "width": 1080,
+      "height": 1350,
+      "filename": "drawing.jpg"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing2.jpg",
+      "width": 1080,
+      "height": 1080,
+      "filename": "drawing2.jpg"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing3.jpg",
+      "width": 1080,
+      "height": 1080,
+      "filename": "drawing3.jpg"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing4.jpg",
+      "width": 1080,
+      "height": 1350,
+      "filename": "drawing4.jpg"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing5.webp",
+      "width": 1170,
+      "height": 1463,
+      "filename": "drawing5.webp"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing6.webp",
+      "width": 1170,
+      "height": 1463,
+      "filename": "drawing6.webp"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing7.webp",
+      "width": 1170,
+      "height": 1463,
+      "filename": "drawing7.webp"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing8.webp",
+      "width": 1170,
+      "height": 1463,
+      "filename": "drawing8.webp"
+    },
+    {
+      "url": "https://j9zrshyt4sxrcbfh.public.blob.vercel-storage.com/gallery/drawings/drawing9.webp",
+      "width": 1170,
+      "height": 1463,
+      "filename": "drawing9.webp"
     }
   ],
   "food": [
