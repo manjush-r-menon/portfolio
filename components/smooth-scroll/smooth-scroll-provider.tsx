@@ -4,7 +4,10 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
-import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
+import {
+  useIsMobileScroll,
+  matchesMobileScrollBreakpoint,
+} from "@/utils/use-is-mobile-scroll";
 
 const LenisContext = createContext<Lenis | null>(null);
 
@@ -52,7 +55,12 @@ export function SmoothScrollProvider({
   lenisRef.current = lenis;
 
   useEffect(() => {
-    if (reduced || isMobileScroll) return;
+    // isMobileScroll can still be mid-correction on this effect's first
+    // run (see matchesMobileScrollBreakpoint's doc comment) — without the
+    // direct check, a mobile-width first load would briefly instantiate a
+    // real Lenis instance (with its own rAF loop) only to destroy it again
+    // a tick later once the hook's own value catches up.
+    if (reduced || isMobileScroll || matchesMobileScrollBreakpoint()) return;
 
     const instance = new Lenis({
       lerp: 0.035,

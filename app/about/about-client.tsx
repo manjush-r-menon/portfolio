@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import {
   useIsMobileScroll,
-  MOBILE_SCROLL_BREAKPOINT,
+  matchesMobileScrollBreakpoint,
 } from "@/utils/use-is-mobile-scroll";
 
 export function AboutClient({
@@ -36,10 +36,7 @@ export function AboutClient({
     // alone — that hook starts `false` and corrects itself in its own
     // effect one tick later, so this effect (which runs in the same
     // commit) would otherwise act on its stale initial value.
-    const isMobile =
-      isMobileScroll ||
-      window.matchMedia(`(max-width: ${MOBILE_SCROLL_BREAKPOINT - 1}px)`)
-        .matches;
+    const isMobile = isMobileScroll || matchesMobileScrollBreakpoint();
     setShowDesktop(!isMobile);
   }, [isMobileScroll]);
 

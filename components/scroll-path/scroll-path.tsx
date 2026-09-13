@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap } from "@/utils/gsap-init";
+import { gsap } from "@/utils/gsap-scroll-trigger";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import buildingAWebsiteImage from "@/images/about-building-a-website.svg";

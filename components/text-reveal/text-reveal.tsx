@@ -1,7 +1,7 @@
 "use client";
 
 import { cloneElement, isValidElement, useEffect, useRef } from "react";
-import { gsap, SplitText } from "@/utils/gsap-init";
+import { gsap, SplitText } from "@/utils/gsap-split-text";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import { onPreloaderDone } from "@/components/preloader/preloader-ready";

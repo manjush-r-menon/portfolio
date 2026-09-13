@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { startTransition, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { CONFIG } from "./gallery-config";
 import { calculateGridDimensions } from "./gallery-state";
@@ -57,7 +57,17 @@ export function GalleryGrid({
   );
   useFrame(() => {
     if (mountedCount < mappedItems.length) {
-      setMountedCount((prev) => Math.min(prev + 5, mappedItems.length));
+      // Transition-wrapped: with textures now loading lazily (see
+      // gallery-scene.tsx's preloadSectionThumbnails) rather than all
+      // preloaded up front, a newly-mounted batch of tiles can suspend on
+      // an unresolved texture. Without startTransition, that suspension
+      // would show this layer's Suspense fallback (null) — hiding every
+      // already-visible tile in this same layer, not just the new batch.
+      // Inside a transition, React keeps the already-committed tiles on
+      // screen and only adds the new batch once its textures resolve.
+      startTransition(() => {
+        setMountedCount((prev) => Math.min(prev + 5, mappedItems.length));
+      });
     }
   });
 
@@ -75,7 +85,13 @@ export function GalleryGrid({
             transitionStartTime={transitionStartTime}
             interactive={interactive}
             gridHeight={gridDims.height}
-            focusedIndex={focusedIndex}
+            // Computed here rather than passing the raw focusedIndex
+            // through: this way each tile's own prop value only changes
+            // when ITS focus state actually flips, which is what lets
+            // GalleryTile's React.memo skip re-rendering every other tile
+            // on a focus toggle instead of seeing a "changed" prop on all
+            // of them.
+            isFocused={focusedIndex === item.index}
           />
         );
       })}

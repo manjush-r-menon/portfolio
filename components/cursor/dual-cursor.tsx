@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { gsap } from "@/utils/gsap-init";
+import gsap from "gsap";
 
 const LERP = 0.18;
 

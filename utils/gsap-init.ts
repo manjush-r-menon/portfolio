@@ -1,13 +1,16 @@
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import { CustomEase } from "gsap/CustomEase";
 
-// Every plugin the app actually uses (ScrollTrigger: scroll-path.tsx,
-// hero-scatter.tsx, pinned-reveal.tsx, scroll-trigger-refresh.tsx;
-// SplitText: text-reveal.tsx; CustomEase: see motionEaseOut below),
-// registered exactly once here instead of separately in each consumer.
-gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
+// CustomEase only. ScrollTrigger and SplitText each live in their own
+// sibling module (gsap-scroll-trigger.ts / gsap-split-text.ts) instead of
+// being registered here too — this file is imported from the root layout's
+// render tree (via PageSettle), so anything registered here ships on every
+// route regardless of whether that route uses it. ScrollTrigger and
+// SplitText are each meaningfully sized plugins that most routes have no
+// use for; keeping them in their own modules means only the routes that
+// actually import a component needing that plugin pay for it. See those
+// two files' own comments for what imports each.
+gsap.registerPlugin(CustomEase);
 
 // Framer Motion's built-in "easeOut" (motion-utils/dist/cjs/index.js:
 // `cubicBezier(0, 0, 0.58, 1)` — the same control points as CSS's own
@@ -22,4 +25,4 @@ gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
 // are numerically equivalent to it.
 export const motionEaseOut = CustomEase.create("motionEaseOut", "0, 0, 0.58, 1");
 
-export { gsap, ScrollTrigger, SplitText };
+export { gsap };

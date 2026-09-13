@@ -76,7 +76,6 @@ export function CaseStudyCard({
     );
     observer.observe(el);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animate]);
 
   return (

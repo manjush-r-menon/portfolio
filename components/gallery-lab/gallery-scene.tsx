@@ -1,17 +1,22 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  startTransition,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import dynamic from "next/dynamic";
 import { Canvas } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import {
   PHOTO_SECTIONS,
   GRID_THUMBNAIL_WIDTH,
-  DETAIL_VIEW_WIDTH,
   getOptimizedSrc,
   type GalleryPhoto,
 } from "./photo-data";
+import { preloadTexturesInBatches } from "./preload-textures";
 import { DEFAULT_CONFIG, CONFIG, resolveThemeColor } from "./gallery-config";
 import { rigState, calculateGridDimensions } from "./gallery-state";
 import { Rig } from "./gallery-rig";
@@ -29,24 +34,23 @@ const GalleryDebugPanel = dynamic(
 );
 const isDev = process.env.NODE_ENV === "development";
 
-// Preload both the grid-thumbnail and detail-view variants of every image
-// up front. Preloading the larger detail size too (not just fetching it
-// lazily on focus) is deliberate: useTexture is Suspense-based, and
-// swapping a tile to a URL that hasn't resolved yet would suspend the
-// whole grid's Suspense boundary right at the moment of focus — visible as
-// the entire canvas going blank. Preloading both sizes here means the
-// focus-time URL swap in gallery-tile.tsx always resolves from cache
-// instead, keeping the click-to-focus transition exactly as smooth as
-// when every tile loaded one full-size image. The tradeoff is more total
-// preload traffic than a lazy detail-size fetch would use — reasonable
-// here since it's still well under what shipping every image at full
-// original resolution cost before this migration.
-PHOTO_SECTIONS.forEach((section) => {
-  section.images.forEach((image) => {
-    useTexture.preload(getOptimizedSrc(image.src, GRID_THUMBNAIL_WIDTH));
-    useTexture.preload(getOptimizedSrc(image.src, DETAIL_VIEW_WIDTH));
-  });
-});
+// Thumbnail URLs for a section, batch-preloaded (see preloadTexturesInBatches)
+// rather than every image in the gallery being requested up front. Detail-
+// view textures are never preloaded here at all — gallery-tile.tsx's own
+// useTexture call requests that size lazily, only once a tile is actually
+// focused. Both the section-switch (handleSectionSwitch below) and the
+// focus toggle (setFocusedIndex below) are wrapped in startTransition, so
+// when a not-yet-loaded texture causes a tile to suspend, React keeps
+// showing the previously-rendered content (the outgoing section, or the
+// tile's own thumbnail) instead of dropping to the Suspense fallback —
+// same mechanism, applied to the loading strategy this component comment
+// used to describe eagerly preloading everything to avoid.
+function preloadSectionThumbnails(sectionIndex: number) {
+  const urls = PHOTO_SECTIONS[sectionIndex].images.map((image) =>
+    getOptimizedSrc(image.src, GRID_THUMBNAIL_WIDTH),
+  );
+  preloadTexturesInBatches(urls);
+}
 
 type ZoomTarget = "OUT" | number | null;
 
@@ -88,7 +92,19 @@ export function GalleryScene() {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   useEffect(() => {
     const interval = setInterval(() => {
-      setFocusedIndex(rigState.activeId);
+      // Wrapped in startTransition: focusing a tile swaps its requested
+      // texture from the (already-loaded) grid-thumbnail size to the
+      // detail-view size, which is only preloaded lazily now (see
+      // preloadSectionThumbnails above and gallery-tile.tsx). Without a
+      // transition, that not-yet-resolved texture would suspend and the
+      // Suspense fallback (null) would replace the tile immediately; inside
+      // a transition, React instead keeps showing the tile's last-committed
+      // render (the thumbnail, already on screen) until the detail texture
+      // resolves, then commits the swap — a brief quality upgrade rather
+      // than a blank flash.
+      startTransition(() => {
+        setFocusedIndex(rigState.activeId);
+      });
     }, 16);
     return () => clearInterval(interval);
   }, []);
@@ -130,24 +146,34 @@ export function GalleryScene() {
   ]);
   const [activeSectionIdx, setActiveSectionIdx] = useState(0);
 
+  // Only the initially-visible section's thumbnails are preloaded on
+  // mount — the other 3 sections' images are requested when the user
+  // actually switches to them (below), not all 4 up front.
+  useEffect(() => {
+    preloadSectionThumbnails(0);
+  }, []);
+
   const handleSectionSwitch = (index: number) => {
     if (index === activeSectionIdx) return;
+    preloadSectionThumbnails(index);
     const now = Date.now();
-    setGridLayers((prev) => {
-      const exitingLayers: GridLayer[] = prev.map((layer) =>
-        layer.mode === "enter"
-          ? { ...layer, mode: "exit" as const, startTime: now }
-          : layer,
-      );
-      const newLayer: GridLayer = {
-        id: `grid-${index}-${now}`,
-        items: PHOTO_SECTIONS[index].images,
-        mode: "enter",
-        startTime: now,
-      };
-      return [...exitingLayers, newLayer];
+    startTransition(() => {
+      setGridLayers((prev) => {
+        const exitingLayers: GridLayer[] = prev.map((layer) =>
+          layer.mode === "enter"
+            ? { ...layer, mode: "exit" as const, startTime: now }
+            : layer,
+        );
+        const newLayer: GridLayer = {
+          id: `grid-${index}-${now}`,
+          items: PHOTO_SECTIONS[index].images,
+          mode: "enter",
+          startTime: now,
+        };
+        return [...exitingLayers, newLayer];
+      });
+      setActiveSectionIdx(index);
     });
-    setActiveSectionIdx(index);
     rigState.target.set(0, 2, 0);
     rigState.activeId = null;
     setTimeout(() => {
@@ -207,18 +233,23 @@ export function GalleryScene() {
           lineThickness={CONFIG.bgLineThickness}
         />
         <fog attach="fog" args={[fogColor, CONFIG.fogNear, CONFIG.fogFar]} />
-        <Suspense fallback={null}>
-          {gridLayers.map((layer) => (
+        {/* One Suspense boundary per layer, not one shared boundary around
+            the whole stack: textures now load lazily per-section, so an
+            incoming layer can suspend while its thumbnails resolve. A
+            shared boundary would blank the still-fully-loaded outgoing
+            layer too, since Suspense replaces everything under the nearest
+            boundary above the point of suspension. */}
+        {gridLayers.map((layer) => (
+          <Suspense key={layer.id} fallback={null}>
             <GalleryGrid
-              key={layer.id}
               items={layer.items}
               gridVisible={layer.mode === "enter"}
               transitionStartTime={layer.startTime}
               interactive={layer.mode === "enter"}
               focusedIndex={focusedIndex}
             />
-          ))}
-        </Suspense>
+          </Suspense>
+        ))}
       </Canvas>
       <GalleryMiniMap
         gridDims={activeDims}

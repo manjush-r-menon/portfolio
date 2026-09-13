@@ -5,7 +5,7 @@ import { motion, type MotionValue } from "framer-motion";
 import { useReducedMotion } from "@/utils/use-reduced-motion";
 import {
   useIsMobileScroll,
-  MOBILE_SCROLL_BREAKPOINT,
+  matchesMobileScrollBreakpoint,
 } from "@/utils/use-is-mobile-scroll";
 import { PinnedTrack } from "./pinned-track";
 
@@ -67,10 +67,7 @@ export function HorizontalScrollHome({
     // orientation change still re-runs this.
     const prefersReduced =
       reduced || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobile =
-      isMobileScroll ||
-      window.matchMedia(`(max-width: ${MOBILE_SCROLL_BREAKPOINT - 1}px)`)
-        .matches;
+    const isMobile = isMobileScroll || matchesMobileScrollBreakpoint();
 
     setUsePinned(!prefersReduced && !isMobile);
   }, [reduced, isMobileScroll]);

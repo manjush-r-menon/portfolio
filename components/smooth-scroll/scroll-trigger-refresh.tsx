@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ScrollTrigger } from "@/utils/gsap-init";
+import { ScrollTrigger } from "@/utils/gsap-scroll-trigger";
 
 /**
  * Every GSAP ScrollTrigger instance in this codebase (scroll-path.tsx,

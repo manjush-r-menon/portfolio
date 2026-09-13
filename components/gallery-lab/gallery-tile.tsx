@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -32,18 +32,25 @@ interface GalleryTileProps {
   transitionStartTime: number;
   interactive: boolean;
   gridHeight: number;
-  // Polled from rigState.activeId into real React state one level up (see
-  // gallery-scene.tsx) — the single source of truth for which tile's close
-  // button renders, and (as of the Blob migration) which texture size it
-  // requests. Deliberately NOT derived from rigState.activeId here at
-  // render time: this component has no subscription to that mutable value,
-  // so reading it directly in the render body would only update whenever
-  // something else happens to re-render this tile, not reliably on every
-  // focus change — which is exactly how stale/duplicate close buttons crept
-  // in before. The imperative per-frame animation below still reads
-  // rigState.activeId directly, which is correct there (useFrame runs every
-  // frame regardless of React's render cycle).
-  focusedIndex: number | null;
+  // Derived one level up (gallery-scene.tsx polls rigState.activeId into
+  // React state; gallery-grid.tsx turns that into this tile's own boolean)
+  // rather than this component comparing a shared focusedIndex/index pair
+  // itself — the single source of truth for which tile's close button
+  // renders, and which texture size it requests. Deliberately NOT derived
+  // from rigState.activeId here at render time: this component has no
+  // subscription to that mutable value, so reading it directly in the
+  // render body would only update whenever something else happens to
+  // re-render this tile, not reliably on every focus change — which is
+  // exactly how stale/duplicate close buttons crept in before. The
+  // imperative per-frame animation below still reads rigState.activeId
+  // directly, which is correct there (useFrame runs every frame regardless
+  // of React's render cycle). Passing this tile's own already-computed
+  // boolean (rather than the raw shared focusedIndex number) is also what
+  // lets React.memo below actually skip re-rendering every other tile when
+  // only one tile's focus state changes — memo's shallow prop comparison
+  // sees an unchanged `false` for every tile except the one whose value
+  // actually flipped, instead of every tile seeing a "different" raw index.
+  isFocused: boolean;
 }
 
 /**
@@ -54,7 +61,7 @@ interface GalleryTileProps {
  * and holographic shader uniform updates. No product copy, price, or
  * type/color filtering — this is a plain image gallery, not the shoe demo.
  */
-export function GalleryTile({
+export const GalleryTile = memo(function GalleryTile({
   data,
   index,
   basePos,
@@ -62,17 +69,17 @@ export function GalleryTile({
   transitionStartTime,
   interactive,
   gridHeight,
-  focusedIndex,
+  isFocused,
 }: GalleryTileProps) {
   const groupRef = useRef<THREE.Group>(null);
   const imageMaterialRef = useRef<GalleryTileMaterialImpl>(null);
   const [hovered, setHovered] = useState(false);
-  // Reactive (see the focusedIndex prop doc above) — used here to request
-  // the larger detail-size image only for the tile that's actually
-  // focused, and the small grid-thumbnail size otherwise. Both sizes are
-  // preloaded up front in gallery-scene.tsx, so this swap resolves from
-  // cache rather than suspending on focus.
-  const isFocused = focusedIndex === index;
+  // Reactive (see the isFocused prop doc above) — used here to request the
+  // larger detail-size image only for the tile that's actually focused,
+  // and the small grid-thumbnail size otherwise. The detail size loads
+  // lazily on this exact transition (see gallery-scene.tsx's
+  // preloadSectionThumbnails / startTransition-wrapped focus updates),
+  // not preloaded up front.
   const texture = useTexture(
     getOptimizedSrc(data.src, isFocused ? DETAIL_VIEW_WIDTH : GRID_THUMBNAIL_WIDTH),
   );
@@ -326,4 +333,4 @@ export function GalleryTile({
       />
     </group>
   );
-}
+});

@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { gsap, ScrollTrigger } from "@/utils/gsap-init";
+import { gsap, ScrollTrigger } from "@/utils/gsap-scroll-trigger";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import { TransitionLink } from "@/components/page-transition/transition-link";
@@ -11,7 +11,10 @@ import {
   CARD_REVEAL_CATEGORIES,
   type CardRevealCategory,
 } from "@/data/card-reveal-data";
-import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
+import {
+  useIsMobileScroll,
+  matchesMobileScrollBreakpoint,
+} from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
 
 const smoothStep = (p: number) => p * p * (3 - 2 * p);
@@ -222,8 +225,13 @@ export function PinnedReveal({
       reduced ||
       (typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    // Same lag as `reduced` above, same fix: isMobileScroll can still be
+    // mid-correction on this effect's first run, which would otherwise
+    // flip this to "animated" for a beat (mounting the portaled/pinned
+    // structure) before immediately reverting to "static".
+    const prefersMobileScroll = isMobileScroll || matchesMobileScrollBreakpoint();
 
-    if (prefersReduced || isMobileScroll) {
+    if (prefersReduced || prefersMobileScroll) {
       setMode("static");
     } else {
       setMode("animated");

@@ -1,11 +1,14 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, ScrollTrigger } from "@/utils/gsap-init";
+import { gsap, ScrollTrigger } from "@/utils/gsap-scroll-trigger";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import { CARD_REVEAL_CATEGORIES } from "@/data/card-reveal-data";
-import { useIsMobileScroll } from "@/utils/use-is-mobile-scroll";
+import {
+  useIsMobileScroll,
+  matchesMobileScrollBreakpoint,
+} from "@/utils/use-is-mobile-scroll";
 import styles from "./card-reveal.module.css";
 
 const smoothStep = (p: number) => p * p * (3 - 2 * p);
@@ -20,7 +23,19 @@ export function HeroScatter({ reduced }: { reduced: boolean }) {
 
   useGSAP(
     () => {
-      if (!heroRef.current || isMobileScroll) return;
+      // isMobileScroll lags one tick behind the real breakpoint on first
+      // mount (see matchesMobileScrollBreakpoint's own doc comment) — this
+      // effect can otherwise build a ScrollTrigger against heroRef.current
+      // (rendered because the JSX gate below hadn't corrected yet either)
+      // only to have it immediately torn down once isMobileScroll updates
+      // and the section unmounts. Checking the breakpoint directly here
+      // avoids ever building that trigger in the first place.
+      if (
+        !heroRef.current ||
+        isMobileScroll ||
+        matchesMobileScrollBreakpoint()
+      )
+        return;
 
       // See the equivalent comment in pinned-reveal.tsx: `reduced` lags one
       // tick behind the real OS setting on first mount, so check matchMedia
