@@ -9,6 +9,7 @@ import {
   useVelocity,
   useTransform,
 } from "framer-motion";
+import { matchesMobileScrollBreakpoint } from "@/utils/hooks/use-is-mobile-scroll";
 
 const PHOTO_SIZE_CLASS =
   "h-40 w-72 sm:h-44 sm:w-[28rem] lg:h-56 lg:w-[40rem] xl:h-60 xl:w-[48rem]";
@@ -135,14 +136,18 @@ export function DraggablePhoto({
 }: InteractivePhotoProps) {
   // Starts static on both server and first client paint (no hydration
   // mismatch). Only upgrades to the draggable version after mount, and
-  // only when the user hasn't asked for reduced motion.
+  // only when the user hasn't asked for reduced motion and isn't on a
+  // mobile-width viewport — dragging a photo around with a thumb doesn't
+  // carry over the same way a mouse-driven interaction does, and the
+  // floating "DRAG ME" label (which only ever renders in the interactive
+  // version below) has nothing useful to say on a touch device anyway.
   const [interactive, setInteractive] = useState(false);
 
   useEffect(() => {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (!reduced) setInteractive(true);
+    if (!reduced && !matchesMobileScrollBreakpoint()) setInteractive(true);
   }, []);
 
   return interactive ? (
