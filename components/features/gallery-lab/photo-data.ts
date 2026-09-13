@@ -42,16 +42,24 @@ const SECTION_ORDER = ["chaos_creative", "drawings", "food", "memories"];
 
 const manifest = galleryManifest as Record<string, ManifestImage[]>;
 
-export const PHOTO_SECTIONS: PhotoSection[] = SECTION_ORDER.map((id) => ({
-  id,
-  title: SECTION_TITLES[id] ?? id,
-  images: (manifest[id] ?? []).map((image) => ({
-    id: `${id}-${image.filename}`,
-    src: image.url,
-    width: image.width,
-    height: image.height,
-  })),
-}));
+export const PHOTO_SECTIONS: PhotoSection[] = SECTION_ORDER.map((id) => {
+  const images = manifest[id];
+  if (!images) {
+    console.error(
+      `No gallery images found for section "${id}" in data/gallery-manifest.json`,
+    );
+  }
+  return {
+    id,
+    title: SECTION_TITLES[id] ?? id,
+    images: (images ?? []).map((image) => ({
+      id: `${id}-${image.filename}`,
+      src: image.url,
+      width: image.width,
+      height: image.height,
+    })),
+  };
+});
 
 /**
  * Requested pixel width for grid thumbnails vs. the focused detail view —
