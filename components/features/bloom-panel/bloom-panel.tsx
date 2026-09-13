@@ -186,6 +186,11 @@ export function BloomPanel({ triggerLabel = "Connect now" }: BloomPanelProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Contact form"
+              // Tells DualCursor (components/features/cursor/dual-cursor.tsx)
+              // to render in white here — the default dark cursor dot is the
+              // same #141412 as this panel's own bg-ink, i.e. literally
+              // invisible against it.
+              data-cursor-light
               className={
                 reduced
                   ? `fixed top-1/2 left-1/2 z-[60] flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden bg-ink shadow-2xl transition-opacity duration-200 ${
